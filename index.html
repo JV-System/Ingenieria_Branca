@@ -625,20 +625,20 @@
   #login-screen {
     position: fixed; inset: 0; z-index: 8000;
     background: linear-gradient(135deg, #060E1F 0%, #0A1628 50%, #0D2044 100%);
-    display: flex; align-items: stretch;
+    display: flex; align-items: center; justify-content: center; gap: 64px;
     font-family: 'Exo 2', 'Segoe UI', sans-serif;
-    overflow: hidden;
+    overflow: hidden; padding: 24px;
   }
   #login-screen.hidden { display: none !important; }
 
   /* ─ Panel izquierdo: orbe animado ─ */
   .login-left {
-    flex: 1; display: flex; flex-direction: column;
+    display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    padding: 40px; position: relative; overflow: hidden;
+    padding: 0; position: relative; flex-shrink: 0;
   }
   .login-left-halo {
-    position: absolute; width: 520px; height: 520px;
+    position: absolute; width: 440px; height: 440px;
     border-radius: 50%; left: 50%; top: 50%;
     transform: translate(-50%,-50%);
     background: radial-gradient(circle, rgba(21,101,216,0.35) 0%, transparent 70%);
@@ -701,13 +701,14 @@
   .login-left-tagline { font-size: 14px; color: rgba(255,255,255,0.55); margin-bottom: 6px; }
   .login-left-brand   { font-size: 17px; font-weight: 800; color: rgba(255,255,255,0.88); letter-spacing: 0.5px; }
 
-  /* ─ Panel derecho: tarjeta blanca ─ */
+  /* ─ Tarjeta blanca flotante ─ */
   .login-right {
-    width: 420px; background: white;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 44px 36px 32px;
-    box-shadow: -16px 0 60px rgba(0,0,0,0.45);
-    position: relative;
+    width: 380px; background: white;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 36px 32px;
+    border-radius: 22px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06);
+    position: relative; flex-shrink: 0;
   }
   .login-logo-wrap { display: flex; justify-content: center; margin-bottom: 16px; }
   .login-logo { max-height: 64px; max-width: 210px; object-fit: contain; }
@@ -749,13 +750,14 @@
   }
   .login-error.show { display: block; }
   .login-right-footer {
-    position: absolute; bottom: 18px; font-size: 11px; color: #ccc; letter-spacing: 0.3px;
+    margin-top: 18px; font-size: 11px; color: #bbb; letter-spacing: 0.3px;
   }
 
-  /* Mobile: ocultar panel izquierdo */
+  /* Mobile: ocultar orbe, solo la tarjeta centrada */
   @media (max-width: 700px) {
+    #login-screen { gap: 0; padding: 20px; }
     .login-left { display: none !important; }
-    .login-right { width: 100%; min-height: 100vh; box-shadow: none; padding: 40px 28px 32px; }
+    .login-right { width: 100%; max-width: 400px; }
   }
 
   /* Botón logout en header */
