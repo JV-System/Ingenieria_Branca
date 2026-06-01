@@ -1923,6 +1923,162 @@
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/TU_URL_AQUI/exec';
 const CLOUD_ENABLED = APPS_SCRIPT_URL.includes('macros/s/') && !APPS_SCRIPT_URL.includes('TU_URL');
 
+// ══════════════════════════════════════════════════════════════════
+// DEMO DATA — se carga una sola vez en instalaciones nuevas
+// ══════════════════════════════════════════════════════════════════
+(function() {
+  if (localStorage.getItem('branca_demo_loaded')) return;
+
+  // ── Usuarios ──────────────────────────────────────────────────
+  localStorage.setItem('branca_users', JSON.stringify([
+    { id:1001, username:'admin',       password:'branca2026', role:'admin',       nombre:'Administrador',      firma:null, foto:null },
+    { id:1002, username:'javier',      password:'tec123',     role:'tecnico',     nombre:'Juan Javier García', firma:null, foto:null },
+    { id:1003, username:'martin',      password:'tec123',     role:'tecnico',     nombre:'Martín López',       firma:null, foto:null },
+    { id:1004, username:'facturacion', password:'fact2026',   role:'facturacion', nombre:'María González',     firma:null, foto:null },
+  ]));
+  localStorage.setItem('branca_admin_pass', 'branca2026');
+
+  // ── Técnicos (espejo de usuarios técnicos) ────────────────────
+  localStorage.setItem('branca_tecnicos', JSON.stringify([
+    { id:1002, nombre:'Juan Javier García', firma:null },
+    { id:1003, nombre:'Martín López',       firma:null },
+  ]));
+
+  // ── Clientes ──────────────────────────────────────────────────
+  localStorage.setItem('branca_clientes', JSON.stringify([
+    { id:2001, empresa:'Metalúrgica Del Río SRL',    contacto:'Roberto Fontana',  tel:'+54 341-4521890',  cuit:'30-71234567-8', ubicacion:'Rosario, Santa Fe',     email:'rfontana@metalurgicadelrio.com' },
+    { id:2002, empresa:'Frigorífico San Marcos SA',  contacto:'Carlos Benítez',   tel:'+54 3462-456789',  cuit:'30-68901234-5', ubicacion:'Rufino, Santa Fe',       email:'cbenitez@frigosanmarcos.com' },
+    { id:2003, empresa:'Constructora Patagónica SRL',contacto:'Ana Morales',      tel:'+54 299-4123456',  cuit:'30-70123456-7', ubicacion:'Neuquén, Neuquén',       email:'amorales@constructorapatagonica.com' },
+  ]));
+
+  // ── Órdenes de servicio ───────────────────────────────────────
+  var O = [
+    // ── 2026-001 · Metalúrgica · locked · COBRADA ──────────────
+    {
+      id:3001, numero:'2026-001', estado:'locked',
+      fecha:'15/04/2026', creadorId:1002, creadorNombre:'Juan Javier García',
+      empresa:'Metalúrgica Del Río SRL', contacto:'Roberto Fontana',
+      tel:'+54 341-4521890', cuit:'30-71234567-8', ubicacion:'Rosario, Santa Fe', email:'rfontana@metalurgicadelrio.com',
+      marca:'Haas', modelo:'ST-10', serie:'045789',
+      responsable:'Juan Javier García', tipoServicio:'mparada',
+      probDetectado:'Choque de cabezal por error en programa CNC. El operario cargó mal los offsets de herramienta, provocando colisión del cabezal con la mordaza.',
+      causaRaiz:'Error humano en la programación. Falta de doble verificación antes de ejecutar el ciclo.',
+      accionRealizada:'Desmontaje del cabezal. Reemplazo por repuesto original Haas. Calibración de husillo y alineación. Test de mecanizado en vacío y verificación de cotas.',
+      repuestos:[
+        {desc:'Cabezal Haas ST-10 original', cantidad:1},
+        {desc:'Kit tornillería de fijación',  cantidad:1},
+        {desc:'Lubricante husillo ISO VG68 (L)', cantidad:2},
+      ],
+      comentarios:'Se recomienda capacitación al operario en carga de offsets. Máquina operativa al 100%.',
+      condicion:['A facturar'],
+      visitas:[
+        {fecha:'15/04/2026', tiempo:'4', causa:'Diagnóstico y desmontaje del cabezal',          horas:4},
+        {fecha:'17/04/2026', tiempo:'4', causa:'Reemplazo, calibración y prueba de mecanizado',  horas:4},
+      ],
+      servicioPlanta:true, trasladoSn:'No', fechaCierre:'17/04/2026', fechaCobro:'28/04/2026',
+      firmaCliente:null, firmaTecnico:null, tecnicoNombre:'Juan Javier García',
+      facturacion:{nroFactura:'F-001', manoDeObra:85000, repuestosCosto:42000, gastos:8000, descuento:0,
+        subtotal:135000, iva:28350, total:163350, condPago:'30 días', fechaFactura:'18/04/2026', estadoPago:'pagado'}
+    },
+    // ── 2026-002 · Frigorífico · locked · COBRADA ──────────────
+    {
+      id:3002, numero:'2026-002', estado:'locked',
+      fecha:'22/04/2026', creadorId:1003, creadorNombre:'Martín López',
+      empresa:'Frigorífico San Marcos SA', contacto:'Carlos Benítez',
+      tel:'+54 3462-456789', cuit:'30-68901234-5', ubicacion:'Rufino, Santa Fe', email:'cbenitez@frigosanmarcos.com',
+      marca:'Atlas Copco', modelo:'GA37', serie:'AC-112233',
+      responsable:'Martín López', tipoServicio:'mparada',
+      probDetectado:'Compresor industrial detenido por alta temperatura. Alarma T-High activa. Temperatura de salida llegando a 105°C (set point 90°C).',
+      causaRaiz:'Válvula termostática de by-pass bloqueada en posición cerrada. Elemento termostático con falla por fatiga.',
+      accionRealizada:'Reemplazo de válvula termostática completa. Limpieza del enfriador de aceite con desengrasante industrial. Recarga con aceite sintético Atlas Copco Roto-Inject Ultra. Test de 30 minutos.',
+      repuestos:[
+        {desc:'Válvula termostática GA37 OEM', cantidad:1},
+        {desc:'Aceite Roto-Inject Ultra 20L',  cantidad:2},
+        {desc:'Filtro de aceite GA37',          cantidad:1},
+      ],
+      comentarios:'Compresor operativo. Temp. estabilizada en 82°C. Próximo service a las 4000 hs.',
+      condicion:['Garantía'],
+      visitas:[
+        {fecha:'22/04/2026', tiempo:'4', causa:'Diagnóstico, reemplazo de termostática y cambio de aceite', horas:4},
+      ],
+      servicioPlanta:false, trasladoSn:'Sí — 120 km ida/vuelta', fechaCierre:'22/04/2026', fechaCobro:'05/05/2026',
+      firmaCliente:null, firmaTecnico:null, tecnicoNombre:'Martín López',
+      facturacion:{nroFactura:'F-002', manoDeObra:48000, repuestosCosto:31500, gastos:15000, descuento:5000,
+        subtotal:89500, iva:18795, total:108295, condPago:'Contado', fechaFactura:'23/04/2026', estadoPago:'pagado'}
+    },
+    // ── 2026-003 · Metalúrgica · locked · PENDIENTE DE COBRO ───
+    {
+      id:3003, numero:'2026-003', estado:'locked',
+      fecha:'10/05/2026', creadorId:1003, creadorNombre:'Martín López',
+      empresa:'Frigorífico San Marcos SA', contacto:'Carlos Benítez',
+      tel:'+54 3462-456789', cuit:'30-68901234-5', ubicacion:'Rufino, Santa Fe', email:'cbenitez@frigosanmarcos.com',
+      marca:'Frigoscandia', modelo:'GCH12 Spiral', serie:'FSC-00456',
+      responsable:'Martín López', tipoServicio:'preventivo',
+      probDetectado:'Banda transportadora del túnel de congelado espiral saltando de los rodillos guía en la curva inferior derecha.',
+      causaRaiz:'Desgaste excesivo en tensor de banda izquierdo. Resorte de tensión con pérdida de fuerza por fatiga (banda con 6 años de uso continuo).',
+      accionRealizada:'Reemplazo completo de banda modular Intralox S1400 (40 metros). Reemplazo de 4 tensores de resorte inox. Ajuste de guías laterales. Test a velocidad plena durante 2 horas.',
+      repuestos:[
+        {desc:'Banda Intralox S1400 — módulos x120', cantidad:1},
+        {desc:'Tensor de resorte inox 316',           cantidad:4},
+        {desc:'Varillas guía inox 316 (ml)',           cantidad:8},
+      ],
+      comentarios:'Planta operativa. Se recomienda revisión de banda del circuito B en próximo PM.',
+      condicion:['A facturar'],
+      visitas:[
+        {fecha:'10/05/2026', tiempo:'3', causa:'Diagnóstico y desmontaje de banda',           horas:3},
+        {fecha:'11/05/2026', tiempo:'5', causa:'Montaje de banda nueva y ajuste de tensores',  horas:5},
+        {fecha:'12/05/2026', tiempo:'2', causa:'Test de funcionamiento y ajustes finales',      horas:2},
+      ],
+      servicioPlanta:false, trasladoSn:'Sí — 120 km ida/vuelta', fechaCierre:'12/05/2026', fechaCobro:'',
+      firmaCliente:null, firmaTecnico:null, tecnicoNombre:'Martín López',
+      facturacion:{nroFactura:'F-003', manoDeObra:120000, repuestosCosto:87500, gastos:12000, descuento:10000,
+        subtotal:209500, iva:43995, total:253495, condPago:'30 días', fechaFactura:'13/05/2026', estadoPago:'pendiente'}
+    },
+    // ── 2026-004 · Metalúrgica · pending (esperando repuestos) ──
+    {
+      id:3004, numero:'2026-004', estado:'pending',
+      fecha:'20/05/2026', creadorId:1002, creadorNombre:'Juan Javier García',
+      empresa:'Metalúrgica Del Río SRL', contacto:'Roberto Fontana',
+      tel:'+54 341-4521890', cuit:'30-71234567-8', ubicacion:'Rosario, Santa Fe', email:'rfontana@metalurgicadelrio.com',
+      marca:'Bridgeport', modelo:'Series II Special', serie:'BM-9847',
+      responsable:'Juan Javier García', tipoServicio:'preventivo',
+      probDetectado:'Vibración anormal en el cabezal de fresado. Se percibe a partir de 1200 RPM. Posible desgaste en rodamientos del árbol principal.',
+      causaRaiz:'En diagnóstico — se presume rodamiento axial SKF 7206 desgastado por falta de lubricación periódica.',
+      accionRealizada:'Diagnóstico realizado con analizador de vibración. Confirmado desgaste de rodamiento. Pedido de repuesto en curso.',
+      repuestos:[
+        {desc:'Rodamiento SKF 7206 BECBM', cantidad:2},
+        {desc:'Grasa SKF LGMT3 (kg)',       cantidad:1},
+      ],
+      comentarios:'En espera de rodamientos SKF desde Buenos Aires. ETA: 3 días. Máquina puede operar a menos de 800 RPM.',
+      condicion:['A facturar'],
+      visitas:[
+        {fecha:'20/05/2026', tiempo:'2', causa:'Diagnóstico y medición de vibración', horas:2},
+      ],
+      servicioPlanta:true, trasladoSn:'No', fechaCierre:'', fechaCobro:'',
+      firmaCliente:null, firmaTecnico:null, tecnicoNombre:'', facturacion:null
+    },
+    // ── 2026-005 · Constructora · open (en proceso) ─────────────
+    {
+      id:3005, numero:'2026-005', estado:'open',
+      fecha:'26/05/2026', creadorId:1002, creadorNombre:'Juan Javier García',
+      empresa:'Constructora Patagónica SRL', contacto:'Ana Morales',
+      tel:'+54 299-4123456', cuit:'30-70123456-7', ubicacion:'Neuquén, Neuquén', email:'amorales@constructorapatagonica.com',
+      marca:'Liebherr', modelo:'120 K.1', serie:'GT-789045',
+      responsable:'Juan Javier García', tipoServicio:'preventivo',
+      probDetectado:'Ruido metálico intermitente en mecanismo de giro de la torre al rotar en sentido antihorario.',
+      causaRaiz:'', accionRealizada:'Primera inspección. Solicitado acceso a plataforma de corona giratoria para inspección detallada.',
+      repuestos:[], comentarios:'', condicion:[],
+      visitas:[
+        {fecha:'26/05/2026', tiempo:'2', causa:'Primera inspección visual y diagnóstico inicial', horas:2},
+      ],
+      servicioPlanta:false, trasladoSn:'', fechaCierre:'', fechaCobro:'',
+      firmaCliente:null, firmaTecnico:null, tecnicoNombre:'', facturacion:null
+    },
+  ];
+  localStorage.setItem('branca_ordenes', JSON.stringify(O));
+  localStorage.setItem('branca_demo_loaded', '1');
+})();
+
 // ==================== DATA ====================
 const DEFAULT_ADMIN_PASS = '1234';
 let currentYear = new Date().getFullYear();
