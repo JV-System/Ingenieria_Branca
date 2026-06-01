@@ -1967,6 +1967,9 @@ const CLOUD_ENABLED = false; // se evalúa dinámicamente via isScriptConfigured
 // ══════════════════════════════════════════════════════════════════
 (function() {
   if (localStorage.getItem('branca_demo_v2')) return;
+  // No pisar datos reales si ya hay órdenes guardadas
+  var _existentes = JSON.parse(localStorage.getItem('branca_ordenes') || '[]');
+  if (_existentes.length > 0) { localStorage.setItem('branca_demo_v2', '1'); return; }
 
   // ── Usuarios ──────────────────────────────────────────────────
   localStorage.setItem('branca_users', JSON.stringify([
