@@ -1966,7 +1966,7 @@ const CLOUD_ENABLED = false; // se evalúa dinámicamente via isScriptConfigured
 // DEMO DATA — se carga una sola vez en instalaciones nuevas
 // ══════════════════════════════════════════════════════════════════
 (function() {
-  if (localStorage.getItem('branca_demo_loaded')) return;
+  if (localStorage.getItem('branca_demo_v2')) return;
 
   // ── Usuarios ──────────────────────────────────────────────────
   localStorage.setItem('branca_users', JSON.stringify([
@@ -2115,7 +2115,7 @@ const CLOUD_ENABLED = false; // se evalúa dinámicamente via isScriptConfigured
     },
   ];
   localStorage.setItem('branca_ordenes', JSON.stringify(O));
-  localStorage.setItem('branca_demo_loaded', '1');
+  localStorage.setItem('branca_demo_v2', '1');
 })();
 
 // ==================== DATA ====================
