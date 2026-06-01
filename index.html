@@ -769,6 +769,43 @@
   }
   .btn-logout:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.35); }
 
+  /* ══ PERFIL DE USUARIO ════════════════════ */
+  #perfilModal { position:fixed; inset:0; z-index:500; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; padding:16px; }
+  #perfilModal.hidden { display:none !important; }
+  .perfil-box {
+    background:white; border-radius:18px; width:100%; max-width:480px;
+    max-height:92vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  .perfil-header {
+    background:linear-gradient(135deg,#060E1F,#0A1628,#0D2044);
+    border-radius:18px 18px 0 0; padding:24px; text-align:center; position:relative;
+  }
+  .perfil-avatar-wrap { position:relative; display:inline-block; margin-bottom:10px; }
+  .perfil-avatar {
+    width:80px; height:80px; border-radius:50%; border:3px solid rgba(255,255,255,0.3);
+    object-fit:cover; background:#1a3060; display:block;
+    font-size:32px; line-height:80px; text-align:center; color:white;
+  }
+  .perfil-avatar-edit {
+    position:absolute; bottom:0; right:0; width:26px; height:26px;
+    background:var(--jv-blue); border-radius:50%; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:13px; border:2px solid white; color:white;
+  }
+  .perfil-nombre { font-size:18px; font-weight:800; color:white; margin-bottom:3px; }
+  .perfil-user   { font-size:12px; color:rgba(255,255,255,0.55); }
+  .perfil-body   { padding:20px 24px; }
+  .perfil-section-title { font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:10px; }
+  .perfil-close  { position:absolute; top:14px; right:16px; background:rgba(255,255,255,0.15); border:none; border-radius:6px; color:white; width:28px; height:28px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
+  /* Avatar en header */
+  .header-avatar {
+    width:28px; height:28px; border-radius:50%; object-fit:cover;
+    border:1.5px solid rgba(255,255,255,0.3); cursor:pointer;
+    background:#1a3060; font-size:12px; color:white;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; overflow:hidden;
+  }
+  .header-avatar:hover { border-color:rgba(255,255,255,0.7); }
+
   /* ══ FACTURACIÓN ══════════════════════════ */
   .fact-card {
     background: white; border-radius: 12px; padding: 20px;
@@ -1715,8 +1752,13 @@
       <div style="width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80;flex-shrink:0;"></div>
       <span style="font-size:11px;color:rgba(255,255,255,0.92);font-weight:600;letter-spacing:0.3px;">Sistema activo</span>
     </div>
-    <span id="header-user-display" style="margin-left:10px;display:flex;align-items:center;gap:5px;"></span>
-    <button class="btn-logout" onclick="logout()" title="Cerrar sesión" style="margin-left:8px;">⏻ Salir</button>
+    <div id="header-user-display" onclick="abrirPerfil()" title="Mi perfil"
+         style="margin-left:10px;display:flex;align-items:center;gap:7px;cursor:pointer;padding:4px 8px;border-radius:8px;transition:background 0.18s;"
+         onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+      <div id="header-avatar" class="header-avatar">👤</div>
+      <span id="header-user-name" style="font-size:12px;color:rgba(255,255,255,0.8);font-weight:600;"></span>
+    </div>
+    <button class="btn-logout" onclick="logout()" title="Cerrar sesión" style="margin-left:6px;">⏻ Salir</button>
   </div>
 </div>
 
@@ -1741,6 +1783,55 @@
       <h3>Ninguna orden seleccionada</h3>
       <p>Creá una nueva orden o seleccioná una del historial</p>
       <button class="btn btn-primary" style="margin-top:16px" onclick="crearNuevaOrden()">+ Nueva Orden</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PERFIL -->
+<div id="perfilModal" class="hidden">
+  <div class="perfil-box">
+    <div class="perfil-header">
+      <button class="perfil-close" onclick="cerrarPerfil()">✕</button>
+      <div class="perfil-avatar-wrap">
+        <div id="perfil-avatar-display" class="perfil-avatar">👤</div>
+        <label class="perfil-avatar-edit" title="Cambiar foto" for="perfil-foto-input">📷</label>
+        <input type="file" id="perfil-foto-input" accept="image/*" style="display:none" onchange="subirFotoPerfil(this)">
+      </div>
+      <div class="perfil-nombre" id="perfil-nombre-display">—</div>
+      <div class="perfil-user" id="perfil-user-display">—</div>
+    </div>
+    <div class="perfil-body">
+      <!-- Firma digital -->
+      <div style="margin-bottom:20px;">
+        <div class="perfil-section-title">✍ Mi firma digital</div>
+        <div class="sig-container" style="margin-bottom:8px;">
+          <canvas id="canvas-perfil-firma" class="sig-canvas" width="420" height="130" style="width:100%;height:130px;touch-action:none;"></canvas>
+          <div class="sig-footer">
+            <span style="font-size:12px;color:var(--text-muted);">Dibujá tu firma</span>
+            <button class="btn-clear-sig" onclick="limpiarFirmaPerfil()">Limpiar</button>
+          </div>
+        </div>
+        <div id="perfil-firma-actual" style="margin-bottom:8px;display:none;">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Firma guardada actualmente:</div>
+          <img id="perfil-firma-preview" style="max-height:60px;border:1px solid var(--border);border-radius:6px;padding:4px;">
+        </div>
+        <button onclick="guardarFirmaPerfil()" class="btn btn-primary" style="font-size:13px;padding:8px 16px;">💾 Guardar firma</button>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border);margin-bottom:20px;">
+      <!-- Cambiar contraseña -->
+      <div>
+        <div class="perfil-section-title">🔑 Cambiar contraseña</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <input type="password" id="perfil-pass-actual" placeholder="Contraseña actual"
+            style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'Exo 2',sans-serif;">
+          <input type="password" id="perfil-pass-nueva" placeholder="Nueva contraseña"
+            style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'Exo 2',sans-serif;">
+          <input type="password" id="perfil-pass-confirm" placeholder="Confirmar nueva contraseña"
+            style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'Exo 2',sans-serif;">
+          <div class="alert hidden" id="perfil-pass-msg" style="margin:0;"></div>
+          <button onclick="cambiarPasswordPerfil()" class="btn" style="font-size:13px;padding:8px 16px;">Cambiar contraseña</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -2005,8 +2096,8 @@ function crearNuevaOrden() {
     empresa: '', contacto: '', tel: '', cuit: '', ubicacion: '', email: '',
     // MÁQUINA
     marca: '', modelo: '', serie: '',
-    // RECEPCION
-    responsable: '', tipoServicio: 'preventivo',
+    // RECEPCION — técnico se auto-asigna
+    responsable: (cu && cu.role === 'tecnico') ? cu.nombre : '', tipoServicio: 'preventivo',
     // DIAGNÓSTICO
     probDetectado: '', causaRaiz: '', accionRealizada: '',
     repuestos: [],
@@ -2440,10 +2531,31 @@ function renderTab() {
 // Los listeners de los tabs se definen con onclick en el HTML generado;
 // esta función existe para no romper la llamada en renderTab().
 function attachTabEvents() {
-  // Firma canvas — reactivar si existe en el tab actual
   const canvas = document.getElementById('sigCanvas');
-  if (canvas && typeof initSignature === 'function') {
-    initSignature(canvas);
+  if (canvas && typeof initSignature === 'function') { initSignature(canvas); }
+
+  // Tab 3 comprobante: init canvas de firma del técnico y pre-cargarlo si el técnico tiene firma en perfil
+  if (currentTab === 3) {
+    setTimeout(function() {
+      const cTec = document.getElementById('canvasTecnico');
+      if (cTec) {
+        initSignaturePad('canvasTecnico');
+        // Pre-cargar firma del técnico logueado desde su perfil
+        const cu = getCurrentUser();
+        if (cu && cu.role === 'tecnico') {
+          const firma = getUserFirma(cu.id);
+          if (firma && canvasIsEmpty('canvasTecnico')) {
+            const img = new Image();
+            img.onload = function() {
+              cTec.getContext('2d').drawImage(img, 0, 0, cTec.width, cTec.height);
+            };
+            img.src = firma;
+          }
+        }
+      }
+      const cCli = document.getElementById('canvasCliente');
+      if (cCli) initSignaturePad('canvasCliente');
+    }, 80);
   }
 }
 
@@ -2598,10 +2710,20 @@ function renderTabCliente() {
       <div class="form-row cols-2">
         <div class="form-group">
           <label>Responsable técnico <span class="req">*</span></label>
-          <select id="f-responsable" ${locked?'disabled':''}>
-            <option value="">Seleccionar técnico...</option>
-            ${tecnicosDB.map(t => `<option value="${esc(t.nombre)}" ${o.responsable===t.nombre?'selected':''}>${esc(t.nombre)}</option>`).join('')}
-          </select>
+          ${(function(){
+            const cu = getCurrentUser();
+            if (cu && cu.role === 'tecnico') {
+              // Técnico: campo readonly con su nombre
+              return '<div style="padding:9px 12px;background:#f0f4f9;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:600;color:var(--navy);">'
+                + '👤 ' + esc(cu.nombre) + '</div>'
+                + '<input type="hidden" id="f-responsable" value="' + esc(cu.nombre) + '">';
+            }
+            // Admin: dropdown de técnicos
+            return '<select id="f-responsable" ' + (locked?'disabled':'') + '>'
+              + '<option value="">Seleccionar técnico...</option>'
+              + tecnicosDB.map(function(t){ return '<option value="' + esc(t.nombre) + '" ' + (o.responsable===t.nombre?'selected':'') + '>' + esc(t.nombre) + '</option>'; }).join('')
+              + '</select>';
+          })()}
         </div>
         <div class="form-group">
           <label>Tipo de servicio</label>
@@ -2921,6 +3043,15 @@ function guardarFirmaTecnico() {
   const c = document.getElementById('canvasTecnico');
   ordenActual.firmaTecnico = c.toDataURL();
   ordenActual.tecnicoNombre = ordenActual.responsable;
+  // Si el técnico logueado firmó, también actualizar su firma en el perfil
+  const cu = getCurrentUser();
+  if (cu && cu.role === 'tecnico') {
+    const users = getUsers();
+    const idx = users.findIndex(function(u){ return u.id === cu.id; });
+    if (idx >= 0) { users[idx].firma = ordenActual.firmaTecnico; saveUsers(users); }
+    const tIdx = tecnicosDB.findIndex(function(t){ return t.nombre === cu.nombre; });
+    if (tIdx >= 0) { tecnicosDB[tIdx].firma = ordenActual.firmaTecnico; saveTecnicos(); }
+  }
   saveData(); renderTab();
 }
 
@@ -4091,8 +4222,16 @@ function agregarUsuario() {
   if (users.find(function(u){ return u.username === uname; })) {
     msgEl.className='alert alert-error'; msgEl.textContent='✕ Ya existe un usuario con ese nombre.'; msgEl.classList.remove('hidden'); return;
   }
-  users.push({ id: Date.now(), username: uname, password: pass, role: rol, nombre: nombre });
+  const newId = Date.now();
+  users.push({ id: newId, username: uname, password: pass, role: rol, nombre: nombre, firma: null, foto: null });
   saveUsers(users);
+  // Si es técnico, crearlo también en tecnicosDB para compatibilidad con las firmas
+  if (rol === 'tecnico') {
+    if (!tecnicosDB.find(function(t){ return t.nombre === nombre; })) {
+      tecnicosDB.push({ id: newId, nombre: nombre, firma: null });
+      saveTecnicos();
+    }
+  }
   document.getElementById('nu-nombre').value = '';
   document.getElementById('nu-user').value   = '';
   document.getElementById('nu-pass').value   = '';
@@ -4105,13 +4244,143 @@ async function eliminarUsuario(uid) {
   if (!await showConfirm('Eliminar usuario', '¿Querés eliminar este usuario?')) return;
   const cu = getCurrentUser();
   if (cu && cu.id === uid) { showToast('⚠ No podés eliminar tu propio usuario.'); return; }
+  const target = getUsers().find(function(u){ return u.id === uid; });
   const users = getUsers().filter(function(u){ return u.id !== uid; });
   saveUsers(users);
+  // Si era técnico, eliminar también de tecnicosDB
+  if (target && target.role === 'tecnico') {
+    tecnicosDB = tecnicosDB.filter(function(t){ return t.id !== uid && t.nombre !== target.nombre; });
+    saveTecnicos();
+  }
   renderConfig(); initFirmasPads();
 }
 
 // Legacy: mantener compatibilidad con getAdminPass()
-function guardarUsuarioLogin() { /* deprecated — ya no se usa */ }
+function guardarUsuarioLogin() { /* deprecated */ }
+
+// ══════════════════════════════════════════
+// MODAL DE PERFIL
+// ══════════════════════════════════════════
+function abrirPerfil() {
+  const cu = getCurrentUser();
+  if (!cu) return;
+  // Actualizar header del modal
+  document.getElementById('perfil-nombre-display').textContent = cu.nombre;
+  document.getElementById('perfil-user-display').textContent = '@' + cu.username + ' · ' + ({admin:'Administrador',tecnico:'Técnico',facturacion:'Facturación'}[cu.role]||cu.role);
+  // Avatar
+  const avEl = document.getElementById('perfil-avatar-display');
+  const foto = getUserFoto(cu.id);
+  if (foto) {
+    avEl.innerHTML = '<img src="'+foto+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+  } else {
+    avEl.innerHTML = cu.nombre.charAt(0).toUpperCase();
+    avEl.style.background = '#1565D8'; avEl.style.fontSize = '32px';
+    avEl.style.lineHeight = '80px'; avEl.style.textAlign = 'center'; avEl.style.color = 'white';
+  }
+  // Firma previa
+  const firmaGuardada = getUserFirma(cu.id);
+  const prevWrap = document.getElementById('perfil-firma-actual');
+  const prevImg  = document.getElementById('perfil-firma-preview');
+  if (firmaGuardada && prevWrap && prevImg) {
+    prevWrap.style.display = 'block';
+    prevImg.src = firmaGuardada;
+  } else if (prevWrap) {
+    prevWrap.style.display = 'none';
+  }
+  // Limpiar campos de contraseña
+  ['perfil-pass-actual','perfil-pass-nueva','perfil-pass-confirm'].forEach(function(id){
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+  document.getElementById('perfil-pass-msg')?.classList.add('hidden');
+  document.getElementById('perfilModal').classList.remove('hidden');
+  // Inicializar pad de firma
+  setTimeout(function() {
+    initSignaturePad('canvas-perfil-firma');
+  }, 80);
+}
+
+function cerrarPerfil() {
+  document.getElementById('perfilModal').classList.add('hidden');
+}
+
+function limpiarFirmaPerfil() {
+  const c = document.getElementById('canvas-perfil-firma');
+  if (c) c.getContext('2d').clearRect(0, 0, c.width, c.height);
+}
+
+function guardarFirmaPerfil() {
+  const cu = getCurrentUser();
+  if (!cu) return;
+  if (canvasIsEmpty('canvas-perfil-firma')) { showToast('✏ Dibujá tu firma primero.'); return; }
+  const c = document.getElementById('canvas-perfil-firma');
+  const firmaData = c.toDataURL();
+  // Guardar en users DB
+  const users = getUsers();
+  const idx = users.findIndex(function(u){ return u.id === cu.id; });
+  if (idx >= 0) { users[idx].firma = firmaData; saveUsers(users); }
+  // Guardar en tecnicosDB si es técnico
+  if (cu.role === 'tecnico') {
+    const tIdx = tecnicosDB.findIndex(function(t){ return t.nombre === cu.nombre || t.id === cu.id; });
+    if (tIdx >= 0) { tecnicosDB[tIdx].firma = firmaData; saveTecnicos(); }
+    else { tecnicosDB.push({ id: cu.id, nombre: cu.nombre, firma: firmaData }); saveTecnicos(); }
+  }
+  showToast('✅ Firma guardada correctamente.');
+  // Actualizar preview
+  const prevWrap = document.getElementById('perfil-firma-actual');
+  const prevImg  = document.getElementById('perfil-firma-preview');
+  if (prevWrap) prevWrap.style.display = 'block';
+  if (prevImg)  prevImg.src = firmaData;
+}
+
+function subirFotoPerfil(input) {
+  const cu = getCurrentUser();
+  if (!cu || !input.files || !input.files[0]) return;
+  const file = input.files[0];
+  if (!file.type.startsWith('image/')) { showToast('⚠ Seleccioná una imagen.'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const fotoData = e.target.result;
+    // Guardar en users DB
+    const users = getUsers();
+    const idx = users.findIndex(function(u){ return u.id === cu.id; });
+    if (idx >= 0) { users[idx].foto = fotoData; saveUsers(users); }
+    // Actualizar avatar en modal y header
+    const avEl = document.getElementById('perfil-avatar-display');
+    if (avEl) avEl.innerHTML = '<img src="'+fotoData+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+    initRoleUI(); // actualiza header
+    showToast('✅ Foto de perfil actualizada.');
+  };
+  reader.readAsDataURL(file);
+}
+
+function cambiarPasswordPerfil() {
+  const cu = getCurrentUser();
+  if (!cu) return;
+  const actual  = document.getElementById('perfil-pass-actual')?.value || '';
+  const nueva   = document.getElementById('perfil-pass-nueva')?.value  || '';
+  const confirm = document.getElementById('perfil-pass-confirm')?.value || '';
+  const msgEl   = document.getElementById('perfil-pass-msg');
+
+  const users = getUsers();
+  const idx = users.findIndex(function(u){ return u.id === cu.id; });
+  if (idx < 0 || users[idx].password !== actual) {
+    msgEl.className='alert alert-error'; msgEl.textContent='✕ Contraseña actual incorrecta.'; msgEl.classList.remove('hidden'); return;
+  }
+  if (nueva.length < 4) {
+    msgEl.className='alert alert-error'; msgEl.textContent='✕ Mínimo 4 caracteres.'; msgEl.classList.remove('hidden'); return;
+  }
+  if (nueva !== confirm) {
+    msgEl.className='alert alert-error'; msgEl.textContent='✕ No coinciden.'; msgEl.classList.remove('hidden'); return;
+  }
+  users[idx].password = nueva;
+  saveUsers(users);
+  if (cu.role === 'admin') localStorage.setItem('branca_admin_pass', nueva);
+  ['perfil-pass-actual','perfil-pass-nueva','perfil-pass-confirm'].forEach(function(id){
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+  msgEl.className='alert alert-success'; msgEl.textContent='✓ Contraseña actualizada.'; msgEl.classList.remove('hidden');
+  setTimeout(function(){ msgEl.classList.add('hidden'); }, 3000);
+}
 
 function initFirmasPads() {
   setTimeout(() => {
@@ -4500,16 +4769,31 @@ function logout() {
   showLoginScreen();
 }
 
+function getUserFoto(userId) {
+  const u = getUsers().find(function(x){ return x.id === userId; });
+  return u ? (u.foto || null) : null;
+}
+function getUserFirma(userId) {
+  const u = getUsers().find(function(x){ return x.id === userId; });
+  return u ? (u.firma || null) : null;
+}
+
 function initRoleUI() {
   const user = getCurrentUser();
   if (!user) return;
-  // Mostrar nombre y rol en header
-  const hd = document.getElementById('header-user-display');
-  if (hd) {
-    const roleLabel = { admin:'Admin', tecnico:'Técnico', facturacion:'Facturación' }[user.role] || user.role;
-    hd.innerHTML = '<span style="margin-right:6px;color:rgba(255,255,255,0.75);">'+user.nombre+'</span>'
-      + '<span class="role-badge role-'+user.role+'">'+roleLabel+'</span>';
+  // Avatar y nombre en header
+  const avatarEl = document.getElementById('header-avatar');
+  const nameEl   = document.getElementById('header-user-name');
+  const foto = getUserFoto(user.id);
+  if (avatarEl) {
+    if (foto) {
+      avatarEl.innerHTML = '<img src="'+foto+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+    } else {
+      avatarEl.textContent = user.nombre.charAt(0).toUpperCase();
+      avatarEl.style.background = '#1565D8';
+    }
   }
+  if (nameEl) nameEl.textContent = user.nombre;
   // Mostrar/ocultar elementos según rol
   ['nav-facturacion','mob-facturacion'].forEach(function(id) {
     const el = document.getElementById(id);
