@@ -138,6 +138,20 @@
     background-position: center;
     opacity: 0.13;
   }
+  /* Logo Branca como marca de agua centrada */
+  .main::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: url('branca-logo.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 38% auto;
+    opacity: 0.07;
+    mix-blend-mode: multiply;
+  }
   /* Los hijos del .main deben estar sobre el fondo */
   .main > * { position: relative; z-index: 1; }
 
