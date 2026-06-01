@@ -769,6 +769,49 @@
   }
   .btn-logout:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.35); }
 
+  /* ══ FACTURACIÓN ══════════════════════════ */
+  .fact-card {
+    background: white; border-radius: 12px; padding: 20px;
+    margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    border: 1px solid #eee;
+  }
+  .fact-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+  .fact-orden-num  { font-size: 20px; font-weight: 800; color: var(--navy); }
+  .fact-orden-info { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+  .fact-badge-pend { background: #fff8e1; color: #8a6000; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .fact-badge-done { background: #e8f5e9; color: #2d7a31; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .fact-badge-cob  { background: #e3f2fd; color: #1565D8; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .fact-resumen { background: #f8f9fa; border-radius: 8px; padding: 11px 14px; margin-bottom: 14px; font-size: 13px; color: var(--text); line-height: 1.6; }
+  .fact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .fact-field label { font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .fact-field input, .fact-field select {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--border);
+    border-radius: 8px; font-size: 13px; font-family: 'Exo 2', sans-serif;
+    transition: border-color 0.2s; outline: none;
+  }
+  .fact-field input:focus, .fact-field select:focus { border-color: var(--jv-blue); }
+  .fact-totales {
+    background: #f0f4f9; border-radius: 8px; padding: 12px 16px;
+    margin-bottom: 14px; font-size: 13px;
+  }
+  .fact-totales .ft-row { display: flex; justify-content: space-between; padding: 3px 0; }
+  .fact-totales .ft-row.total { font-size: 16px; font-weight: 800; border-top: 2px solid var(--border); margin-top: 6px; padding-top: 8px; color: var(--navy); }
+  .fact-totales .ft-row.iva  { color: var(--text-muted); font-size: 12px; }
+  .fact-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .fact-btn       { padding: 9px 18px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Exo 2', sans-serif; transition: opacity 0.18s; }
+  .fact-btn:hover { opacity: 0.85; }
+  .fact-btn-save  { background: var(--jv-blue); color: white; }
+  .fact-btn-pdf   { background: #2d7a31; color: white; }
+  .fact-btn-mail  { background: #8a6000; color: white; }
+  /* Rol badge en header */
+  .role-badge {
+    font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px;
+    letter-spacing: 0.4px; text-transform: uppercase;
+  }
+  .role-admin   { background: rgba(21,101,216,0.2); color: #90caf9; }
+  .role-tecnico { background: rgba(29,158,117,0.2); color: #80cbc4; }
+  .role-facturacion { background: rgba(186,117,23,0.2); color: #ffcc80; }
+
   /* LOCKED state */
   .locked-form input,
 .locked-form select,
@@ -1661,17 +1704,19 @@
     </div>
   </div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="switchView('nueva')">+ Nueva Orden</button>
-    <button class="nav-tab" onclick="switchView('historial')">📋 Historial</button>
-    <button class="nav-tab" onclick="switchView('config')">⚙ Configuración</button>
+    <button id="nav-nueva" class="nav-tab active" onclick="switchView('nueva')">+ Nueva Orden</button>
+    <button id="nav-historial" class="nav-tab" onclick="switchView('historial')">📋 Historial</button>
+    <button id="nav-facturacion" class="nav-tab" onclick="switchView('facturacion')" style="display:none">💰 Facturación</button>
+    <button id="nav-config" class="nav-tab" onclick="switchView('config')">⚙ Configuración</button>
   </div>
   <div class="header-actions">
     <span id="sync-status" style="font-size:11px;font-weight:600;transition:color 0.3s;"></span>
-    <div style="display:flex;align-items:center;gap:6px;margin-left:12px;">
-      <div style="width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80;"></div>
+    <div style="display:flex;align-items:center;gap:6px;margin-left:10px;">
+      <div style="width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80;flex-shrink:0;"></div>
       <span style="font-size:11px;color:rgba(255,255,255,0.92);font-weight:600;letter-spacing:0.3px;">Sistema activo</span>
     </div>
-    <button class="btn-logout" onclick="logout()" title="Cerrar sesión" style="margin-left:10px;">⏻ Salir</button>
+    <span id="header-user-display" style="margin-left:10px;display:flex;align-items:center;gap:5px;"></span>
+    <button class="btn-logout" onclick="logout()" title="Cerrar sesión" style="margin-left:8px;">⏻ Salir</button>
   </div>
 </div>
 
@@ -1759,7 +1804,7 @@ const CLOUD_ENABLED = APPS_SCRIPT_URL.includes('macros/s/') && !APPS_SCRIPT_URL.
 // ==================== DATA ====================
 const DEFAULT_ADMIN_PASS = '1234';
 let currentYear = new Date().getFullYear();
-let syncStatus = 'idle'; // idle | syncing | ok | error
+let syncStatus = 'idle';
 
 let tecnicosDB = JSON.parse(localStorage.getItem('branca_tecnicos') || 'null') || [];
 let clientesDB = JSON.parse(localStorage.getItem('branca_clientes') || 'null') || [];
@@ -1768,6 +1813,32 @@ let ordenes = JSON.parse(localStorage.getItem('branca_ordenes') || '[]');
 let ordenActual = null;
 let currentTab = 0;
 let viewMode = 'nueva';
+
+// ── USUARIOS ──────────────────────────────────
+const DEFAULT_USERS = [
+  { id: 1, username: 'admin', password: '1234', role: 'admin', nombre: 'Administrador' }
+];
+function getUsers() {
+  return JSON.parse(localStorage.getItem('branca_users') || JSON.stringify(DEFAULT_USERS));
+}
+function saveUsers(u) { localStorage.setItem('branca_users', JSON.stringify(u)); }
+
+function getCurrentUser() {
+  const r = sessionStorage.getItem('branca_session_user') || localStorage.getItem('branca_session_user');
+  return r ? JSON.parse(r) : null;
+}
+function isAdmin()       { const u = getCurrentUser(); return u && u.role === 'admin'; }
+function isTecnico()     { const u = getCurrentUser(); return u && u.role === 'tecnico'; }
+function canFacturar()   { const u = getCurrentUser(); return u && (u.role === 'admin' || u.role === 'facturacion'); }
+function canCrearOrden() { const u = getCurrentUser(); return u && (u.role === 'admin' || u.role === 'tecnico'); }
+
+function getNextFacturaNum() {
+  const nums = ordenes
+    .filter(o => o.facturacion && o.facturacion.nroFactura)
+    .map(o => parseInt((o.facturacion.nroFactura || '0').replace(/\D/g, '')) || 0);
+  const next = (nums.length ? Math.max(...nums) : 0) + 1;
+  return 'F-' + String(next).padStart(3, '0');
+}
 
 // ==================== CLOUD API ====================
 async function apiGet(action) {
@@ -1916,15 +1987,20 @@ function ordenIncompleta() {
 }
 
 function crearNuevaOrden() {
-if (ordenIncompleta()) {
-   showToast('⚠ Tenés una orden incompleta. Completala o eliminála antes de crear otra.');
-   return;
-}
+  if (!canCrearOrden()) { showToast('⚠ No tenés permiso para crear órdenes.'); return; }
+  if (ordenIncompleta()) {
+    showToast('⚠ Tenés una orden incompleta. Completala o eliminála antes de crear otra.');
+    return;
+  }
+  const cu = getCurrentUser();
   const nueva = {
     id: Date.now(),
     numero: getNextNum(),
-    estado: 'open', // open | pending | locked
+    estado: 'open',
     fecha: new Date().toLocaleDateString('es-AR'),
+    // CREADOR
+    creadorId: cu ? cu.id : 0,
+    creadorNombre: cu ? cu.nombre : 'Desconocido',
     // CLIENTE
     empresa: '', contacto: '', tel: '', cuit: '', ubicacion: '', email: '',
     // MÁQUINA
@@ -1941,9 +2017,9 @@ if (ordenIncompleta()) {
     // SEGUIMIENTO
     fechaCierre: '', fechaCobro: '',
     // FIRMAS
-    firmaCliente: null,
-    firmaTecnico: null,
-    tecnicoNombre: '',
+    firmaCliente: null, firmaTecnico: null, tecnicoNombre: '',
+    // FACTURACIÓN
+    facturacion: null,
   };
   ordenes.unshift(nueva);
   saveData();
@@ -1990,12 +2066,19 @@ function seleccionarOrden(id) {
 
 function renderOrderList() {
   const list = document.getElementById('orderList');
-  const q = document.getElementById('searchInput').value.toLowerCase();
+  if (!list) return;
+  const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const cu = getCurrentUser();
 
-  const filtered = ordenes.filter(o =>
-    o.empresa.toLowerCase().includes(q) ||
-    o.numero.toLowerCase().includes(q)
-  );
+  // Filtrar órdenes según rol
+  let visible = ordenes;
+  if (cu && cu.role === 'tecnico') {
+    visible = ordenes.filter(function(o) { return o.creadorId === cu.id; });
+  }
+
+  const filtered = visible.filter(function(o) {
+    return (o.empresa||'').toLowerCase().includes(q) || (o.numero||'').toLowerCase().includes(q);
+  });
 
   list.innerHTML = filtered.map(o => `
 
@@ -2041,16 +2124,27 @@ function renderOrderList() {
 function filtrarOrdenes(q) { renderOrderList(); }
 
 function switchView(v) {
+  const user = getCurrentUser();
   if (v === 'config') {
+    if (!isAdmin()) return;
     if (!configUnlocked) { openConfigPass(); return; }
   }
+  if (v === 'facturacion' && !canFacturar()) return;
+  if ((v === 'nueva' || v === 'historial') && user && user.role === 'facturacion') return;
+
   viewMode = v;
-  document.querySelectorAll('.nav-tab').forEach((t, i) => {
-    t.classList.toggle('active', (v==='nueva'&&i===0)||(v==='historial'&&i===1)||(v==='config'&&i===2));
+  // Nav tabs
+  ['nav-nueva','nav-historial','nav-facturacion','nav-config'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('active');
   });
-  if (v === 'historial') renderHistorial();
-  else if (v === 'config') { renderConfig(); initFirmasPads(); }
-  else if (ordenActual) renderFormContent();
+  const activeId = { nueva:'nav-nueva', historial:'nav-historial', facturacion:'nav-facturacion', config:'nav-config' }[v];
+  if (activeId) { const el = document.getElementById(activeId); if (el) el.classList.add('active'); }
+
+  if (v === 'historial')    renderHistorial();
+  else if (v === 'config')  { renderConfig(); initFirmasPads(); }
+  else if (v === 'facturacion') renderFacturacion();
+  else if (ordenActual)     renderFormContent();
   else {
     document.getElementById('mainContent').innerHTML = `
       <div class="empty-state">
@@ -3147,6 +3241,236 @@ function exportarPDF() {
 }
 
 
+// ══════════════════════════════════════════════════════
+// MÓDULO DE FACTURACIÓN
+// ══════════════════════════════════════════════════════
+function renderFacturacion() {
+  const mc = document.getElementById('mainContent');
+  if (!mc) return;
+  const listas = ordenes.filter(function(o) { return o.estado === 'locked'; });
+  mc.innerHTML = '<div style="overflow-y:auto;flex:1;height:100%;padding:20px 24px;">'
+    + '<div style="max-width:960px;margin:0 auto;">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">'
+    + '<h2 style="font-size:20px;font-weight:800;color:var(--navy);">💰 Facturación</h2>'
+    + '<span style="font-size:13px;color:var(--text-muted);">' + listas.length + ' orden(es) finalizada(s)</span>'
+    + '</div>'
+    + (listas.length === 0
+      ? '<div class="empty-state"><div class="icon">💰</div><h3>Sin órdenes para facturar</h3><p>Las órdenes finalizadas por los técnicos aparecerán aquí</p></div>'
+      : listas.map(renderFactCard).join(''))
+    + '</div></div>';
+}
+
+function renderFactCard(o) {
+  const f = o.facturacion || {};
+  const reps = (o.repuestos || []).filter(function(r){ return r.desc; });
+  const badge = !f.nroFactura ? '<span class="fact-badge-pend">Pendiente</span>'
+    : f.estadoPago === 'pagado' ? '<span class="fact-badge-cob">✓ Cobrado · ' + f.nroFactura + '</span>'
+    : '<span class="fact-badge-done">Facturado · ' + f.nroFactura + '</span>';
+
+  const totalesHTML = renderFactTotalesHTML(o);
+
+  return '<div class="fact-card">'
+    + '<div class="fact-card-header">'
+    + '<div><div class="fact-orden-num">' + esc(o.numero) + '</div>'
+    + '<div class="fact-orden-info">' + esc(o.empresa || '—') + ' · ' + esc(o.contacto || '') + '</div>'
+    + '<div class="fact-orden-info" style="font-size:12px;">Técnico: ' + esc(o.creadorNombre || o.responsable || '—') + ' · ' + esc(o.fecha) + '</div></div>'
+    + badge + '</div>'
+    + '<div class="fact-resumen">'
+    + (o.probDetectado ? '<strong>Problema:</strong> ' + esc(o.probDetectado) + '<br>' : '')
+    + (o.accionRealizada ? '<strong>Acción:</strong> ' + esc(o.accionRealizada) + '<br>' : '')
+    + (reps.length ? '<strong>Repuestos:</strong> ' + reps.map(function(r){ return esc(r.desc) + (r.cantidad > 1 ? ' (x'+r.cantidad+')' : ''); }).join(', ') : '')
+    + '</div>'
+    + '<div class="fact-grid">'
+    + factField('N° Factura', 'fact-nro-'+o.id, 'text', f.nroFactura || getNextFacturaNum(), '')
+    + factField('Mano de obra ($)', 'fact-mo-'+o.id, 'number', f.manoDeObra || '', '0')
+    + factField('Repuestos ($)', 'fact-rep-'+o.id, 'number', f.repuestosCosto || '', '0')
+    + factField('Gastos varios ($)', 'fact-gastos-'+o.id, 'number', f.gastos || '', '0')
+    + factField('Descuento ($)', 'fact-desc-'+o.id, 'number', f.descuento || '', '0')
+    + '<div class="fact-field"><label>Cond. pago</label><select id="fact-cond-'+o.id+'">'
+    + ['Contado','30 días','60 días','Cuenta corriente'].map(function(c){ return '<option'+(f.condPago===c?' selected':'')+'>'+c+'</option>'; }).join('')
+    + '</select></div>'
+    + factField('Fecha factura', 'fact-fecha-'+o.id, 'date', f.fechaFactura || new Date().toISOString().split('T')[0], '')
+    + '<div class="fact-field"><label>Estado pago</label><select id="fact-estado-'+o.id+'">'
+    + '<option value="pendiente"'+((!f.estadoPago||f.estadoPago==='pendiente')?' selected':'')+'>Pendiente de cobro</option>'
+    + '<option value="pagado"'+(f.estadoPago==='pagado'?' selected':'')+'>Pagado ✓</option>'
+    + '</select></div>'
+    + '</div>'
+    + '<div class="fact-totales" id="fact-totales-'+o.id+'">' + totalesHTML + '</div>'
+    + '<div class="fact-actions">'
+    + '<button class="fact-btn fact-btn-save" onclick="guardarFacturacion('+o.id+')">💾 Guardar</button>'
+    + (f.nroFactura ? '<button class="fact-btn fact-btn-pdf" onclick="generarFacturaPDF('+o.id+')">📄 PDF Factura</button>' : '')
+    + (f.nroFactura && (o.email||o.contacto) ? '<button class="fact-btn fact-btn-mail" onclick="enviarMailFactura('+o.id+')">✉ Enviar por mail</button>' : '')
+    + '</div></div>';
+}
+
+function factField(label, id, type, val, placeholder) {
+  return '<div class="fact-field"><label>' + label + '</label>'
+    + '<input type="' + type + '" id="' + id + '" value="' + val + '" placeholder="' + placeholder + '"'
+    + (type === 'number' ? ' oninput="calcFactura(this,\'' + id.split('-').pop() + '\')"' : '')
+    + '></div>';
+}
+
+function calcFactura(el, oid) {
+  // Buscar el id de la orden a partir del id del input (fact-mo-12345 → 12345)
+  const inputs = document.querySelectorAll('[id$="-' + oid + '"]');
+  let oId = null;
+  inputs.forEach(function(i){ if(i.id.startsWith('fact-mo-')) oId = i.id.replace('fact-mo-',''); });
+  if (!oId) return;
+  const o = ordenes.find(function(x){ return String(x.id) === String(oId); });
+  if (!o) return;
+  const totDiv = document.getElementById('fact-totales-' + oId);
+  if (totDiv) totDiv.innerHTML = renderFactTotalesHTML(o, oId);
+}
+
+function getFactValues(oid) {
+  const g = function(id) { const el = document.getElementById(id+'-'+oid); return el ? parseFloat(el.value)||0 : 0; };
+  const gs = function(id) { const el = document.getElementById(id+'-'+oid); return el ? el.value : ''; };
+  const mo   = g('fact-mo');
+  const rep  = g('fact-rep');
+  const gas  = g('fact-gastos');
+  const desc = g('fact-desc');
+  const sub  = mo + rep + gas - desc;
+  const iva  = Math.round(sub * 0.21 * 100) / 100;
+  const total = Math.round((sub + iva) * 100) / 100;
+  return { mo, rep, gas, desc, sub, iva, total,
+    nroFactura: gs('fact-nro'), condPago: gs('fact-cond'), fechaFactura: gs('fact-fecha'), estadoPago: gs('fact-estado') };
+}
+
+function renderFactTotalesHTML(o, oid) {
+  var v;
+  if (oid) {
+    v = getFactValues(oid);
+  } else {
+    const f = o.facturacion || {};
+    const sub = (f.manoDeObra||0) + (f.repuestosCosto||0) + (f.gastos||0) - (f.descuento||0);
+    const iva = Math.round(sub * 0.21 * 100) / 100;
+    v = { mo: f.manoDeObra||0, rep: f.repuestosCosto||0, gas: f.gastos||0, desc: f.descuento||0, sub, iva, total: Math.round((sub+iva)*100)/100 };
+  }
+  const fmt = function(n){ return '$ ' + n.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2}); };
+  return '<div class="ft-row"><span>Mano de obra</span><span>' + fmt(v.mo) + '</span></div>'
+    + '<div class="ft-row"><span>Repuestos</span><span>' + fmt(v.rep) + '</span></div>'
+    + (v.gas ? '<div class="ft-row"><span>Gastos varios</span><span>' + fmt(v.gas) + '</span></div>' : '')
+    + (v.desc ? '<div class="ft-row"><span>Descuento</span><span>-' + fmt(v.desc) + '</span></div>' : '')
+    + '<div class="ft-row iva"><span>Subtotal neto</span><span>' + fmt(v.sub) + '</span></div>'
+    + '<div class="ft-row iva"><span>IVA 21%</span><span>' + fmt(v.iva) + '</span></div>'
+    + '<div class="ft-row total"><span>TOTAL</span><span>' + fmt(v.total) + '</span></div>';
+}
+
+function guardarFacturacion(oid) {
+  const o = ordenes.find(function(x){ return String(x.id) === String(oid); });
+  if (!o) return;
+  const v = getFactValues(oid);
+  o.facturacion = { nroFactura: v.nroFactura, manoDeObra: v.mo, repuestosCosto: v.rep, gastos: v.gas,
+    descuento: v.desc, subtotal: v.sub, iva: v.iva, total: v.total,
+    condPago: v.condPago, fechaFactura: v.fechaFactura, estadoPago: v.estadoPago };
+  const idx = ordenes.findIndex(function(x){ return x.id === o.id; });
+  if (idx >= 0) ordenes[idx] = o;
+  saveData();
+  showToast('✅ Factura guardada.');
+  setTimeout(renderFacturacion, 300);
+}
+
+function generarFacturaPDF(oid) {
+  const o = ordenes.find(function(x){ return String(x.id) === String(oid); });
+  if (!o || !o.facturacion) return;
+  const f = o.facturacion;
+  const fmt = function(n){ return '$ ' + (n||0).toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2}); };
+  const estilos = Array.from(document.querySelectorAll('style')).map(function(s){ return s.textContent; }).join('\n');
+
+  const html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">'
+    + '<title>Factura ' + esc(f.nroFactura) + '<\/title>'
+    + '<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&display=swap" rel="stylesheet">'
+    + '<style>*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}'
+    + 'html,body{height:auto!important;overflow:visible!important;background:white!important;font-family:\'Exo 2\',Arial,sans-serif;}'
+    + '@page{margin:12mm;size:A4 portrait;}'
+    + '.fact-header{background:#0A1628;color:white;padding:20px 24px;display:flex;justify-content:space-between;align-items:flex-start;border-radius:10px 10px 0 0;}'
+    + '.fact-logo{max-height:50px;max-width:160px;background:white;padding:4px 8px;border-radius:6px;}'
+    + '.fact-body{padding:20px 24px;}'
+    + '.fact-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;}'
+    + '.fact-sep{border:none;border-top:1px solid #ddd;margin:8px 0;}'
+    + '.fact-total-row{display:flex;justify-content:space-between;padding:8px 0;font-size:17px;font-weight:800;color:#0A1628;border-top:2px solid #0A1628;margin-top:6px;}'
+    + '.fact-section{margin-bottom:18px;}'
+    + '.fact-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:8px;}'
+    + '.fact-table{width:100%;border-collapse:collapse;font-size:13px;}'
+    + '.fact-table th{background:#f4f6fb;padding:7px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#555;}'
+    + '.fact-table td{padding:7px 10px;border-bottom:1px solid #f0f0f0;}'
+    + '<\/style><\/head><body>'
+    + '<div style="border:1px solid #ddd;border-radius:10px;overflow:hidden;max-width:680px;margin:0 auto;">'
+    + '<div class="fact-header">'
+    + '<div><img src="branca-logo.png" class="fact-logo" onerror="this.style.display=\'none\'"><\/div>'
+    + '<div style="text-align:right;">'
+    + '<div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#aaa;">Factura de servicio<\/div>'
+    + '<div style="font-size:26px;font-weight:800;color:#F5A623;">' + esc(f.nroFactura) + '<\/div>'
+    + '<div style="font-size:12px;color:#aaa;">' + esc(f.fechaFactura) + '<\/div>'
+    + '<\/div><\/div>'
+    + '<div class="fact-body">'
+    // Datos del cliente
+    + '<div class="fact-section"><div class="fact-section-title">Datos del cliente<\/div>'
+    + '<div class="fact-row"><span style="color:#555;">Empresa<\/span><span style="font-weight:600;">' + esc(o.empresa||'—') + '<\/span><\/div>'
+    + '<div class="fact-row"><span style="color:#555;">Contacto<\/span><span>' + esc(o.contacto||'—') + '<\/span><\/div>'
+    + (o.cuit ? '<div class="fact-row"><span style="color:#555;">CUIT<\/span><span>' + esc(o.cuit) + '<\/span><\/div>' : '')
+    + (o.email ? '<div class="fact-row"><span style="color:#555;">Email<\/span><span>' + esc(o.email) + '<\/span><\/div>' : '')
+    + '<\/div>'
+    // Detalle del servicio
+    + '<div class="fact-section"><div class="fact-section-title">Detalle del servicio<\/div>'
+    + '<table class="fact-table"><thead><tr><th>Descripción<\/th><th style="text-align:right;">Importe<\/th><\/tr><\/thead><tbody>'
+    + '<tr><td>Mano de obra — ' + esc(o.accionRealizada||o.probDetectado||'Servicio técnico') + '<\/td><td style="text-align:right;">' + fmt(f.manoDeObra||0) + '<\/td><\/tr>'
+    + (f.repuestosCosto ? '<tr><td>Repuestos y materiales<\/td><td style="text-align:right;">' + fmt(f.repuestosCosto) + '<\/td><\/tr>' : '')
+    + (f.gastos ? '<tr><td>Gastos varios<\/td><td style="text-align:right;">' + fmt(f.gastos) + '<\/td><\/tr>' : '')
+    + (f.descuento ? '<tr><td style="color:#c0392b;">Descuento<\/td><td style="text-align:right;color:#c0392b;">-' + fmt(f.descuento) + '<\/td><\/tr>' : '')
+    + '<\/tbody><\/table><\/div>'
+    // Totales
+    + '<div style="background:#f8f9fa;border-radius:8px;padding:14px 16px;">'
+    + '<div class="fact-row"><span>Subtotal neto<\/span><span>' + fmt(f.subtotal||0) + '<\/span><\/div>'
+    + '<div class="fact-row" style="color:#888;font-size:12px;"><span>IVA 21%<\/span><span>' + fmt(f.iva||0) + '<\/span><\/div>'
+    + '<div class="fact-total-row"><span>TOTAL<\/span><span>' + fmt(f.total||0) + '<\/span><\/div>'
+    + '<div style="font-size:12px;color:#888;margin-top:8px;">Condición: ' + esc(f.condPago||'Contado') + ' · Estado: ' + (f.estadoPago==='pagado'?'<span style="color:#2d7a31;font-weight:700;">Pagado ✓<\/span>':'<span style="color:#8a6000;">Pendiente de cobro<\/span>') + '<\/div>'
+    + '<\/div>'
+    // Orden
+    + '<div style="margin-top:16px;padding-top:14px;border-top:1px solid #eee;font-size:11px;color:#aaa;text-align:center;">'
+    + 'Orden de servicio: ' + esc(o.numero) + ' · Técnico: ' + esc(o.creadorNombre||o.responsable||'—') + ' · Fecha: ' + esc(o.fecha)
+    + '<\/div><\/div><\/div>'
+    + '<script>window.addEventListener("load",function(){setTimeout(function(){window.print();setTimeout(function(){window.close();},1200);},700);});<\/script>'
+    + '<\/body><\/html>';
+
+  const win = window.open('', '_blank', 'width=820,height=920');
+  if (!win) { showToast('⚠ Activá las ventanas emergentes.'); return; }
+  win.document.write(html);
+  win.document.close();
+}
+
+function enviarMailFactura(oid) {
+  const o = ordenes.find(function(x){ return String(x.id) === String(oid); });
+  if (!o || !o.facturacion) return;
+  const f = o.facturacion;
+  const fmt = function(n){ return '$ ' + (n||0).toLocaleString('es-AR', {minimumFractionDigits:2}); };
+  const dest = o.email || '';
+  const asunto = encodeURIComponent('Factura ' + f.nroFactura + ' — ' + (o.empresa||'') + ' — Ingeniería Branca SRL');
+  const cuerpo = encodeURIComponent(
+    'Estimado/a ' + (o.contacto||o.empresa||'cliente') + ',\n\n'
+    + 'Adjuntamos la factura correspondiente al servicio técnico realizado.\n\n'
+    + '  Factura N°: ' + f.nroFactura + '\n'
+    + '  Fecha: ' + f.fechaFactura + '\n'
+    + '  Orden: ' + o.numero + '\n'
+    + '  Trabajo: ' + (o.accionRealizada||o.probDetectado||'—') + '\n\n'
+    + '  Mano de obra:  ' + fmt(f.manoDeObra||0) + '\n'
+    + (f.repuestosCosto ? '  Repuestos:     ' + fmt(f.repuestosCosto) + '\n' : '')
+    + (f.gastos ? '  Gastos:        ' + fmt(f.gastos) + '\n' : '')
+    + (f.descuento ? '  Descuento:    -' + fmt(f.descuento) + '\n' : '')
+    + '  IVA 21%:       ' + fmt(f.iva||0) + '\n'
+    + '  ─────────────────────────────\n'
+    + '  TOTAL:         ' + fmt(f.total||0) + '\n\n'
+    + '  Condición de pago: ' + (f.condPago||'Contado') + '\n\n'
+    + 'Ante cualquier consulta no dude en contactarnos.\n\n'
+    + 'Ingeniería Branca SRL\n'
+    + 'Tel: 0341-5082410 · www.ingenieriabranca.com'
+  );
+  showToast('📧 Abriendo cliente de correo...');
+  window.open('mailto:' + dest + '?subject=' + asunto + '&body=' + cuerpo, '_blank');
+}
+
+// ── FIN FACTURACIÓN ────────────────────────────────────
+
 function renderActions() {
 
   if (!ordenActual) return;
@@ -3476,26 +3800,50 @@ function renderConfig() {
             </div>
           </div>
 
-          <!-- ACCESO AL SISTEMA -->
-          <div class="config-card config-full config-change-pass">
+          <!-- USUARIOS DEL SISTEMA -->
+          <div class="config-card config-full">
             <div class="config-card-header">
-              <h3>🔑 Acceso al sistema</h3>
+              <h3>👥 Usuarios del sistema</h3>
+              <span class="count">${getUsers().length} usuarios</span>
             </div>
             <div class="config-card-body">
-              <!-- Usuario -->
-              <div style="padding:0 18px 14px;">
-                <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">Nombre de usuario</div>
-                <div style="display:flex;gap:8px;align-items:center;">
-                  <input type="text" id="cfg-login-user" placeholder="usuario"
-                         value="${getLoginUser()}"
-                         style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;"
-                         autocapitalize="none" autocorrect="off">
-                  <button class="btn-add-item" style="background:#444;white-space:nowrap;" onclick="guardarUsuarioLogin()">Guardar usuario</button>
+              <div id="usuarios-list" style="margin-bottom:14px;">${renderUsuariosList()}</div>
+              <div style="padding:0 18px 6px;">
+                <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">Agregar usuario</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:flex-end;">
+                  <div>
+                    <label style="font-size:11px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:3px;">Nombre completo</label>
+                    <input type="text" id="nu-nombre" placeholder="Ej: Juan García" style="width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;">
+                  </div>
+                  <div>
+                    <label style="font-size:11px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:3px;">Usuario</label>
+                    <input type="text" id="nu-user" placeholder="juan.garcia" autocapitalize="none" style="width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;">
+                  </div>
+                  <div>
+                    <label style="font-size:11px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:3px;">Contraseña</label>
+                    <input type="password" id="nu-pass" placeholder="Mínimo 4 caracteres" style="width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;">
+                  </div>
+                  <div>
+                    <label style="font-size:11px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:3px;">Rol</label>
+                    <select id="nu-rol" style="width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;">
+                      <option value="tecnico">Técnico</option>
+                      <option value="facturacion">Facturación</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
                 </div>
-                <div class="alert hidden" id="user-msg" style="margin-top:8px;"></div>
+                <button class="btn-add-item" style="margin-top:10px;" onclick="agregarUsuario()">+ Agregar usuario</button>
+                <div class="alert hidden" id="nu-msg" style="margin-top:8px;"></div>
               </div>
-              <hr style="border:none;border-top:1px solid var(--border);margin:0 18px 14px;">
-              <!-- Contraseña -->
+            </div>
+          </div>
+
+          <!-- CAMBIAR MI CONTRASEÑA -->
+          <div class="config-card config-full config-change-pass">
+            <div class="config-card-header">
+              <h3>🔑 Cambiar mi contraseña</h3>
+            </div>
+            <div class="config-card-body">
               <div class="config-add-form" style="align-items:flex-end;padding:0 18px 4px;">
                 <div>
                   <label style="font-size:11px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:3px;">Contraseña actual</label>
@@ -3509,7 +3857,7 @@ function renderConfig() {
                   <label style="font-size:11px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:3px;">Confirmar nueva</label>
                   <input type="password" id="pass-confirm" placeholder="••••••">
                 </div>
-                <button class="btn-add-item" style="background:#444;" onclick="cambiarPassword()">Cambiar contraseña</button>
+                <button class="btn-add-item" style="background:#444;" onclick="cambiarPassword()">Cambiar</button>
               </div>
               <div class="alert hidden" id="pass-msg" style="margin:0 18px 14px;"></div>
             </div>
@@ -3670,43 +4018,100 @@ function editarCliente(id) {
   initFirmasPads();
 }
 
-// CONTRASEÑA
+// CONTRASEÑA — cambia la contraseña del usuario logueado
 function cambiarPassword() {
   const actual = document.getElementById('pass-actual').value;
-  const nueva = document.getElementById('pass-nueva').value;
-  const confirm = document.getElementById('pass-confirm').value;
-  const msgEl = document.getElementById('pass-msg');
-  if (actual !== getAdminPass()) {
+  const nueva  = document.getElementById('pass-nueva').value;
+  const confirm= document.getElementById('pass-confirm').value;
+  const msgEl  = document.getElementById('pass-msg');
+  const cu = getCurrentUser();
+  if (!cu) return;
+
+  const users = getUsers();
+  const idx = users.findIndex(function(u){ return u.id === cu.id; });
+  if (idx < 0 || users[idx].password !== actual) {
     msgEl.className = 'alert alert-error'; msgEl.textContent = '✕ La contraseña actual es incorrecta.'; msgEl.classList.remove('hidden'); return;
   }
   if (nueva.length < 4) {
-    msgEl.className = 'alert alert-error'; msgEl.textContent = '✕ La nueva contraseña debe tener al menos 4 caracteres.'; msgEl.classList.remove('hidden'); return;
+    msgEl.className = 'alert alert-error'; msgEl.textContent = '✕ Debe tener al menos 4 caracteres.'; msgEl.classList.remove('hidden'); return;
   }
   if (nueva !== confirm) {
     msgEl.className = 'alert alert-error'; msgEl.textContent = '✕ Las contraseñas no coinciden.'; msgEl.classList.remove('hidden'); return;
   }
-  localStorage.setItem('branca_admin_pass', nueva);
-  syncConfig({ adminPass: nueva });
+  users[idx].password = nueva;
+  saveUsers(users);
+  // Actualizar también la clave legacy para compatibilidad con getAdminPass()
+  if (cu.role === 'admin') localStorage.setItem('branca_admin_pass', nueva);
   document.getElementById('pass-actual').value = '';
-  document.getElementById('pass-nueva').value = '';
+  document.getElementById('pass-nueva').value  = '';
   document.getElementById('pass-confirm').value = '';
-  msgEl.className = 'alert alert-success'; msgEl.textContent = '✓ Contraseña actualizada correctamente.'; msgEl.classList.remove('hidden');
-  setTimeout(() => msgEl.classList.add('hidden'), 3000);
+  msgEl.className = 'alert alert-success'; msgEl.textContent = '✓ Contraseña actualizada.'; msgEl.classList.remove('hidden');
+  setTimeout(function(){ msgEl.classList.add('hidden'); }, 3000);
 }
 
-// USUARIO DE LOGIN
-function guardarUsuarioLogin() {
-  const input = document.getElementById('cfg-login-user');
-  const msgEl = document.getElementById('user-msg');
-  if (!input) return;
-  const nuevo = input.value.trim().toLowerCase();
-  if (!nuevo || nuevo.length < 3) {
-    msgEl.className = 'alert alert-error'; msgEl.textContent = '✕ El usuario debe tener al menos 3 caracteres.'; msgEl.classList.remove('hidden'); return;
-  }
-  localStorage.setItem(AUTH_USER_KEY, nuevo);
-  msgEl.className = 'alert alert-success'; msgEl.textContent = '✓ Usuario actualizado correctamente.'; msgEl.classList.remove('hidden');
-  setTimeout(() => msgEl.classList.add('hidden'), 3000);
+// USUARIOS CRUD
+function renderUsuariosList() {
+  const users = getUsers();
+  const cu = getCurrentUser();
+  if (!users.length) return '<p style="padding:12px 18px;font-size:13px;color:var(--text-muted);">Sin usuarios.</p>';
+  const roleLabel = { admin:'Admin', tecnico:'Técnico', facturacion:'Facturación' };
+  const roleColor = { admin:'#1565D8', tecnico:'#1D9E75', facturacion:'#BA7517' };
+  return users.map(function(u) {
+    const esYo = cu && u.id === cu.id;
+    return '<div class="config-item">'
+      + '<div class="config-item-info">'
+      + '<div class="config-item-name" style="display:flex;align-items:center;gap:6px;">'
+      + '👤 ' + esc(u.nombre)
+      + ' <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:' + (roleColor[u.role]||'#888') + '22;color:' + (roleColor[u.role]||'#888') + ';">'
+      + (roleLabel[u.role]||u.role) + '</span>'
+      + (esYo ? ' <span style="font-size:10px;color:#888;">(vos)</span>' : '')
+      + '</div>'
+      + '<div class="config-item-sub">@' + esc(u.username) + '</div>'
+      + '</div>'
+      + '<div class="config-item-actions">'
+      + (!esYo ? '<button class="btn-icon-sm" onclick="eliminarUsuario(' + u.id + ')" title="Eliminar">✕</button>' : '')
+      + '</div></div>';
+  }).join('');
 }
+
+function agregarUsuario() {
+  const nombre = (document.getElementById('nu-nombre')?.value||'').trim();
+  const uname  = (document.getElementById('nu-user')?.value||'').trim().toLowerCase();
+  const pass   = (document.getElementById('nu-pass')?.value||'');
+  const rol    = (document.getElementById('nu-rol')?.value||'tecnico');
+  const msgEl  = document.getElementById('nu-msg');
+
+  if (!nombre || !uname || !pass) {
+    msgEl.className='alert alert-error'; msgEl.textContent='✕ Completá todos los campos.'; msgEl.classList.remove('hidden'); return;
+  }
+  if (pass.length < 4) {
+    msgEl.className='alert alert-error'; msgEl.textContent='✕ La contraseña debe tener al menos 4 caracteres.'; msgEl.classList.remove('hidden'); return;
+  }
+  const users = getUsers();
+  if (users.find(function(u){ return u.username === uname; })) {
+    msgEl.className='alert alert-error'; msgEl.textContent='✕ Ya existe un usuario con ese nombre.'; msgEl.classList.remove('hidden'); return;
+  }
+  users.push({ id: Date.now(), username: uname, password: pass, role: rol, nombre: nombre });
+  saveUsers(users);
+  document.getElementById('nu-nombre').value = '';
+  document.getElementById('nu-user').value   = '';
+  document.getElementById('nu-pass').value   = '';
+  msgEl.className='alert alert-success'; msgEl.textContent='✓ Usuario creado.'; msgEl.classList.remove('hidden');
+  setTimeout(function(){ msgEl.classList.add('hidden'); }, 2500);
+  renderConfig(); initFirmasPads();
+}
+
+async function eliminarUsuario(uid) {
+  if (!await showConfirm('Eliminar usuario', '¿Querés eliminar este usuario?')) return;
+  const cu = getCurrentUser();
+  if (cu && cu.id === uid) { showToast('⚠ No podés eliminar tu propio usuario.'); return; }
+  const users = getUsers().filter(function(u){ return u.id !== uid; });
+  saveUsers(users);
+  renderConfig(); initFirmasPads();
+}
+
+// Legacy: mantener compatibilidad con getAdminPass()
+function guardarUsuarioLogin() { /* deprecated — ya no se usa */ }
 
 function initFirmasPads() {
   setTimeout(() => {
@@ -3820,9 +4225,13 @@ loadFromCloud();
     <span class="mob-icon">📋</span>
     <span>Órdenes</span>
   </button>
-  <button class="mob-fab-btn" onclick="crearNuevaOrden()">
+  <button class="mob-fab-btn" id="mob-nueva-btn" onclick="crearNuevaOrden()">
     <div class="mob-fab-inner">＋</div>
     <span class="mob-fab-label">Nueva</span>
+  </button>
+  <button class="mob-nav-btn" id="mob-facturacion" onclick="mobSetView('facturacion')" style="display:none">
+    <span class="mob-icon">💰</span>
+    <span>Factura</span>
   </button>
   <button class="mob-nav-btn" id="mob-historial" onclick="mobSetView('historial')">
     <span class="mob-icon">🕐</span>
@@ -3841,7 +4250,6 @@ const isMob = () => window.innerWidth <= 768;
 function mobSetView(v) {
   const sidebar = document.getElementById('sidebar');
   if (v === 'ordenes') {
-    // toggle sidebar
     if (sidebar) sidebar.classList.toggle('mob-open');
     mobActivate(sidebar && sidebar.classList.contains('mob-open') ? 'ordenes' : '');
     return;
@@ -4015,7 +4423,7 @@ if ('serviceWorker' in navigator) {
 const AUTH_KEY      = 'branca_session';
 const AUTH_USER_KEY = 'branca_login_user';
 
-function getLoginUser() { return localStorage.getItem(AUTH_USER_KEY) || 'admin'; }
+function getLoginUser() { return localStorage.getItem(AUTH_USER_KEY) || 'admin'; } // legacy compat
 
 function isLoggedIn() {
   return !!sessionStorage.getItem(AUTH_KEY) || !!localStorage.getItem(AUTH_KEY);
@@ -4025,46 +4433,56 @@ function showLoginScreen() {
   const s = document.getElementById('login-screen');
   if (!s) return;
   s.classList.remove('hidden');
-  // Pre-llenar el usuario si fue guardado
   const uEl = document.getElementById('login-user');
-  if (uEl) uEl.value = getLoginUser();
+  if (uEl) uEl.value = '';
   setTimeout(function() {
-    const p = document.getElementById('login-pass');
-    if (p) p.focus();
+    const u = document.getElementById('login-user');
+    if (u) u.focus();
   }, 150);
 }
 
 function hideLoginScreen() {
   const s = document.getElementById('login-screen');
   if (s) s.classList.add('hidden');
+  initRoleUI();
 }
 
 function doLogin() {
-  const userEl = document.getElementById('login-user');
-  const passEl = document.getElementById('login-pass');
-  const errEl  = document.getElementById('login-error');
-  const user   = (userEl ? userEl.value : '').trim().toLowerCase();
-  const pass   = passEl ? passEl.value : '';
-  const remember = document.getElementById('login-remember');
-  const recordar = remember && remember.checked;
+  const userEl   = document.getElementById('login-user');
+  const passEl   = document.getElementById('login-pass');
+  const errEl    = document.getElementById('login-error');
+  const userIn   = (userEl ? userEl.value : '').trim().toLowerCase();
+  const passIn   = passEl ? passEl.value : '';
+  const recordar = document.getElementById('login-remember')?.checked;
 
-  if (!user || !pass) {
+  if (!userIn || !passIn) {
     errEl.textContent = 'Ingresá usuario y contraseña.';
     errEl.classList.add('show'); return;
   }
-  if (user !== getLoginUser().toLowerCase() || pass !== getAdminPass()) {
+
+  // Buscar en la DB de usuarios
+  const users = getUsers();
+  const found = users.find(function(u) {
+    return u.username.toLowerCase() === userIn && u.password === passIn;
+  });
+
+  if (!found) {
     errEl.textContent = 'Usuario o contraseña incorrectos.';
     errEl.classList.add('show');
-    if (passEl) passEl.value = '';
-    if (passEl) setTimeout(function(){ passEl.focus(); }, 50);
+    if (passEl) { passEl.value = ''; setTimeout(function(){ passEl.focus(); }, 50); }
     return;
   }
+
   errEl.classList.remove('show');
-  const token = 'ses-' + Date.now();
+  const session = JSON.stringify({ id: found.id, username: found.username, role: found.role, nombre: found.nombre });
+  const token   = 'ses-' + Date.now();
   if (recordar) {
+    localStorage.setItem('branca_session_user', session);
     localStorage.setItem(AUTH_KEY, token);
   } else {
+    sessionStorage.setItem('branca_session_user', session);
     sessionStorage.setItem(AUTH_KEY, token);
+    localStorage.removeItem('branca_session_user');
     localStorage.removeItem(AUTH_KEY);
   }
   hideLoginScreen();
@@ -4072,13 +4490,43 @@ function doLogin() {
 
 function logout() {
   sessionStorage.removeItem(AUTH_KEY);
+  sessionStorage.removeItem('branca_session_user');
   localStorage.removeItem(AUTH_KEY);
-  // Limpiar campo de contraseña para que deba reingresar
+  localStorage.removeItem('branca_session_user');
   const p = document.getElementById('login-pass');
   if (p) p.value = '';
   const e = document.getElementById('login-error');
   if (e) e.classList.remove('show');
   showLoginScreen();
+}
+
+function initRoleUI() {
+  const user = getCurrentUser();
+  if (!user) return;
+  // Mostrar nombre y rol en header
+  const hd = document.getElementById('header-user-display');
+  if (hd) {
+    const roleLabel = { admin:'Admin', tecnico:'Técnico', facturacion:'Facturación' }[user.role] || user.role;
+    hd.innerHTML = '<span style="margin-right:6px;color:rgba(255,255,255,0.75);">'+user.nombre+'</span>'
+      + '<span class="role-badge role-'+user.role+'">'+roleLabel+'</span>';
+  }
+  // Mostrar/ocultar elementos según rol
+  ['nav-facturacion','mob-facturacion'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = canFacturar() ? '' : 'none';
+  });
+  ['nav-config','mob-config'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isAdmin() ? '' : 'none';
+  });
+  ['nav-nueva','mob-nueva-btn'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = canCrearOrden() ? '' : 'none';
+  });
+  // Si es rol facturacion, ir directo a facturación
+  if (user.role === 'facturacion') {
+    switchView('facturacion');
+  }
 }
 
 // ══════════════════════════════════════════
@@ -4095,8 +4543,9 @@ function logout() {
     s.classList.add('hide');
     setTimeout(function() {
       if (s.parentNode) s.parentNode.removeChild(s);
-      // Mostrar login si no hay sesión activa
+      // Mostrar login o iniciar UI según sesión
       if (!isLoggedIn()) { showLoginScreen(); }
+      else { initRoleUI(); }
     }, 750);
   }
 
