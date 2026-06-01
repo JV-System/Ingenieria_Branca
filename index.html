@@ -3856,26 +3856,6 @@ function renderConfig() {
         </div>
         <div class="config-grid">
 
-          <!-- TÉCNICOS -->
-          <div class="config-card">
-            <div class="config-card-header">
-              <h3>👷 Técnicos</h3>
-              <span class="count">${tecnicosDB.length} registrados</span>
-            </div>
-            <div class="config-card-body">
-              <div id="tecnicos-list">
-                ${renderTecnicosList()}
-              </div>
-              <div class="config-add-form">
-                <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
-                  <label style="font-size:11px;font-weight:600;color:var(--text-muted);">Nombre del técnico</label>
-                  <input type="text" id="new-tec-nombre" placeholder="Ej: Martín García">
-                </div>
-                <button class="btn-add-item" onclick="agregarTecnico()">+ Agregar</button>
-              </div>
-            </div>
-          </div>
-
           <!-- CLIENTES -->
           <div class="config-card">
             <div class="config-card-header">
@@ -3914,19 +3894,6 @@ function renderConfig() {
                   </div>
                 </div>
                 <button class="btn-add-item" style="align-self:flex-end;" onclick="agregarCliente()">+ Agregar empresa</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- FIRMAS DE TÉCNICOS -->
-          <div class="config-card config-full">
-            <div class="config-card-header">
-              <h3>✍ Firmas de técnicos</h3>
-              <span class="count">Se cargan automáticamente al seleccionar el técnico</span>
-            </div>
-            <div class="config-card-body">
-              <div id="firmas-list">
-                ${renderFirmasList()}
               </div>
             </div>
           </div>
@@ -4181,27 +4148,69 @@ function cambiarPassword() {
 }
 
 // USUARIOS CRUD
+function borrarFirmaUsuario(uid) {
+  const users = getUsers();
+  const idx = users.findIndex(function(u){ return u.id === uid; });
+  if (idx < 0) return;
+  users[idx].firma = null;
+  saveUsers(users);
+  // También en tecnicosDB
+  const tIdx = tecnicosDB.findIndex(function(t){ return t.id === uid || t.nombre === users[idx].nombre; });
+  if (tIdx >= 0) { tecnicosDB[tIdx].firma = null; saveTecnicos(); }
+  renderConfig(); initFirmasPads();
+}
+
 function renderUsuariosList() {
   const users = getUsers();
   const cu = getCurrentUser();
   if (!users.length) return '<p style="padding:12px 18px;font-size:13px;color:var(--text-muted);">Sin usuarios.</p>';
   const roleLabel = { admin:'Admin', tecnico:'Técnico', facturacion:'Facturación' };
   const roleColor = { admin:'#1565D8', tecnico:'#1D9E75', facturacion:'#BA7517' };
+
   return users.map(function(u) {
-    const esYo = cu && u.id === cu.id;
-    return '<div class="config-item">'
-      + '<div class="config-item-info">'
-      + '<div class="config-item-name" style="display:flex;align-items:center;gap:6px;">'
-      + '👤 ' + esc(u.nombre)
-      + ' <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:' + (roleColor[u.role]||'#888') + '22;color:' + (roleColor[u.role]||'#888') + ';">'
-      + (roleLabel[u.role]||u.role) + '</span>'
-      + (esYo ? ' <span style="font-size:10px;color:#888;">(vos)</span>' : '')
+    const esYo  = cu && u.id === cu.id;
+    const color = roleColor[u.role] || '#888';
+    const badge = '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:'+color+'22;color:'+color+';">'+(roleLabel[u.role]||u.role)+'</span>';
+
+    // Avatar
+    const avatarHtml = u.foto
+      ? '<img src="'+u.foto+'" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #e0e0e0;flex-shrink:0;">'
+      : '<div style="width:40px;height:40px;border-radius:50%;background:'+color+'22;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:'+color+';flex-shrink:0;">'+u.nombre.charAt(0).toUpperCase()+'</div>';
+
+    // Bloque extra para técnicos: firma integrada
+    let firmaBloque = '';
+    if (u.role === 'tecnico') {
+      const tieneF = !!(u.firma);
+      firmaBloque = '<div style="margin-top:10px;padding:10px 12px;background:#f8f9fa;border-radius:8px;border:1px solid #eee;">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">'
+        // Firma
+        + '<div style="display:flex;align-items:center;gap:10px;flex:1;">'
+        + '<span style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.4px;white-space:nowrap;">✍ Firma:</span>'
+        + (tieneF
+          ? '<img src="'+u.firma+'" style="max-height:38px;max-width:130px;border:1px solid #ddd;border-radius:4px;padding:2px 4px;background:white;">'
+          : '<span style="font-size:12px;color:#aaa;font-style:italic;">El técnico la configura desde Mi perfil</span>')
+        + '</div>'
+        // Foto + acciones
+        + '<div style="display:flex;align-items:center;gap:8px;">'
+        + (u.foto ? '<span style="font-size:11px;color:#2d7a31;font-weight:600;">📷 Con foto</span>' : '<span style="font-size:11px;color:#aaa;">Sin foto</span>')
+        + (tieneF && !esYo ? '<button onclick="borrarFirmaUsuario('+u.id+')" style="font-size:11px;color:#c0392b;background:none;border:1px solid rgba(192,57,43,0.25);border-radius:5px;padding:3px 8px;cursor:pointer;">Borrar firma</button>' : '')
+        + '</div>'
+        + '</div>'
+        + '</div>';
+    }
+
+    return '<div style="padding:12px 18px;border-bottom:1px solid var(--border);">'
+      + '<div style="display:flex;align-items:center;gap:10px;">'
+      + avatarHtml
+      + '<div style="flex:1;">'
+      + '<div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">'+esc(u.nombre)+' '+badge
+      + (esYo ? ' <span style="font-size:10px;color:#aaa;">(vos)</span>' : '')+'</div>'
+      + '<div style="font-size:12px;color:var(--text-muted);">@'+esc(u.username)+'</div>'
       + '</div>'
-      + '<div class="config-item-sub">@' + esc(u.username) + '</div>'
+      + (!esYo ? '<button onclick="eliminarUsuario('+u.id+')" style="background:none;border:none;color:#ccc;font-size:18px;cursor:pointer;padding:4px 8px;flex-shrink:0;" title="Eliminar">✕</button>' : '')
       + '</div>'
-      + '<div class="config-item-actions">'
-      + (!esYo ? '<button class="btn-icon-sm" onclick="eliminarUsuario(' + u.id + ')" title="Eliminar">✕</button>' : '')
-      + '</div></div>';
+      + firmaBloque
+      + '</div>';
   }).join('');
 }
 
