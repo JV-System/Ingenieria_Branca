@@ -610,6 +610,63 @@
     .comp-branca-logo { max-height: 50px !important; max-width: 160px !important; }
   }
 
+  /* ══════════════════════════════════════════
+     LOGIN SCREEN
+  ══════════════════════════════════════════ */
+  #login-screen {
+    position: fixed; inset: 0; z-index: 8000;
+    background: linear-gradient(160deg, #060E1F 0%, #0A1628 55%, #0D2044 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px; font-family: 'Exo 2', 'Segoe UI', sans-serif;
+  }
+  #login-screen.hidden { display: none !important; }
+  .login-card {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.13);
+    border-radius: 18px;
+    padding: 32px 28px 28px;
+    width: 100%; max-width: 360px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .login-logo-wrap { display: flex; justify-content: center; margin-bottom: 20px; }
+  .login-logo { max-height: 58px; max-width: 200px; object-fit: contain; background: white; border-radius: 8px; padding: 6px 12px; }
+  .login-title { font-size: 16px; font-weight: 800; color: rgba(255,255,255,0.92); text-align: center; margin-bottom: 3px; }
+  .login-subtitle { font-size: 12px; color: rgba(255,255,255,0.4); text-align: center; margin-bottom: 24px; }
+  .login-field { margin-bottom: 14px; }
+  .login-field label { display: block; font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 6px; }
+  .login-field input {
+    width: 100%; padding: 12px 14px;
+    background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.14);
+    border-radius: 10px; font-size: 15px; color: white; font-family: 'Exo 2', sans-serif;
+    transition: border-color 0.2s, background 0.2s; outline: none;
+  }
+  .login-field input:focus { border-color: #1565D8; background: rgba(255,255,255,0.13); }
+  .login-field input::placeholder { color: rgba(255,255,255,0.28); }
+  .login-remember { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-size: 13px; color: rgba(255,255,255,0.5); cursor: pointer; }
+  .login-remember input[type="checkbox"] { width: 16px; height: 16px; accent-color: #1565D8; cursor: pointer; flex-shrink: 0; }
+  .login-btn {
+    width: 100%; padding: 13px; background: #1565D8; border: none; border-radius: 10px;
+    font-size: 15px; font-weight: 700; color: white; font-family: 'Exo 2', sans-serif;
+    cursor: pointer; letter-spacing: 0.3px; transition: background 0.18s, transform 0.1s;
+  }
+  .login-btn:hover { background: #1E90FF; }
+  .login-btn:active { transform: scale(0.98); }
+  .login-error {
+    background: rgba(192,57,43,0.22); border: 1px solid rgba(220,80,60,0.4);
+    border-radius: 8px; padding: 9px 12px; font-size: 13px; color: #ff8a80;
+    margin-bottom: 14px; display: none; text-align: center;
+  }
+  .login-error.show { display: block; }
+  .login-footer { margin-top: 20px; font-size: 11px; color: rgba(255,255,255,0.22); letter-spacing: 0.3px; }
+  /* Botón logout en header */
+  .btn-logout {
+    background: none; border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 6px; color: rgba(255,255,255,0.65); font-size: 11px;
+    font-weight: 600; padding: 5px 11px; cursor: pointer; font-family: 'Exo 2', sans-serif;
+    transition: all 0.18s;
+  }
+  .btn-logout:hover { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.35); }
+
   /* LOCKED state */
   .locked-form input,
 .locked-form select,
@@ -1427,6 +1484,38 @@
 
 </div>
 
+<!-- ════════════════════════════════════════
+     LOGIN SCREEN
+════════════════════════════════════════ -->
+<div id="login-screen" class="hidden">
+  <div class="login-card">
+    <div class="login-logo-wrap">
+      <img src="branca-logo.png" alt="Ingeniería Branca SRL" class="login-logo"
+           onerror="this.style.display='none'">
+    </div>
+    <div class="login-title">Órdenes de Servicio</div>
+    <div class="login-subtitle">Ingeniería Branca SRL</div>
+    <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
+    <div class="login-field">
+      <label>Usuario</label>
+      <input type="text" id="login-user" placeholder="usuario"
+             autocomplete="username" autocapitalize="none" autocorrect="off"
+             onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+    </div>
+    <div class="login-field">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••"
+             autocomplete="current-password"
+             onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <label class="login-remember">
+      <input type="checkbox" id="login-remember"> Recordarme en este dispositivo
+    </label>
+    <button class="login-btn" onclick="doLogin()">Ingresar</button>
+  </div>
+  <div class="login-footer">JV Systems · Soluciones Digitales</div>
+</div>
+
 <!-- HEADER -->
 <div class="app-header">
   <div class="logo-area">
@@ -1453,6 +1542,7 @@
       <div style="width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80;"></div>
       <span style="font-size:11px;color:rgba(255,255,255,0.92);font-weight:600;letter-spacing:0.3px;">Sistema activo</span>
     </div>
+    <button class="btn-logout" onclick="logout()" title="Cerrar sesión" style="margin-left:10px;">⏻ Salir</button>
   </div>
 </div>
 
@@ -3257,13 +3347,27 @@ function renderConfig() {
             </div>
           </div>
 
-          <!-- CAMBIAR CONTRASEÑA -->
+          <!-- ACCESO AL SISTEMA -->
           <div class="config-card config-full config-change-pass">
             <div class="config-card-header">
-              <h3>🔑 Contraseña de administrador</h3>
+              <h3>🔑 Acceso al sistema</h3>
             </div>
             <div class="config-card-body">
-              <div class="config-add-form" style="align-items:flex-end;">
+              <!-- Usuario -->
+              <div style="padding:0 18px 14px;">
+                <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">Nombre de usuario</div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="text" id="cfg-login-user" placeholder="usuario"
+                         value="${getLoginUser()}"
+                         style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;"
+                         autocapitalize="none" autocorrect="off">
+                  <button class="btn-add-item" style="background:#444;white-space:nowrap;" onclick="guardarUsuarioLogin()">Guardar usuario</button>
+                </div>
+                <div class="alert hidden" id="user-msg" style="margin-top:8px;"></div>
+              </div>
+              <hr style="border:none;border-top:1px solid var(--border);margin:0 18px 14px;">
+              <!-- Contraseña -->
+              <div class="config-add-form" style="align-items:flex-end;padding:0 18px 4px;">
                 <div>
                   <label style="font-size:11px;font-weight:600;color:var(--text-muted);display:block;margin-bottom:3px;">Contraseña actual</label>
                   <input type="password" id="pass-actual" placeholder="••••••">
@@ -3458,6 +3562,20 @@ function cambiarPassword() {
   document.getElementById('pass-nueva').value = '';
   document.getElementById('pass-confirm').value = '';
   msgEl.className = 'alert alert-success'; msgEl.textContent = '✓ Contraseña actualizada correctamente.'; msgEl.classList.remove('hidden');
+  setTimeout(() => msgEl.classList.add('hidden'), 3000);
+}
+
+// USUARIO DE LOGIN
+function guardarUsuarioLogin() {
+  const input = document.getElementById('cfg-login-user');
+  const msgEl = document.getElementById('user-msg');
+  if (!input) return;
+  const nuevo = input.value.trim().toLowerCase();
+  if (!nuevo || nuevo.length < 3) {
+    msgEl.className = 'alert alert-error'; msgEl.textContent = '✕ El usuario debe tener al menos 3 caracteres.'; msgEl.classList.remove('hidden'); return;
+  }
+  localStorage.setItem(AUTH_USER_KEY, nuevo);
+  msgEl.className = 'alert alert-success'; msgEl.textContent = '✓ Usuario actualizado correctamente.'; msgEl.classList.remove('hidden');
   setTimeout(() => msgEl.classList.add('hidden'), 3000);
 }
 
@@ -3763,6 +3881,78 @@ if ('serviceWorker' in navigator) {
 }
 
 // ══════════════════════════════════════════
+// AUTENTICACIÓN — Login / Logout
+// ══════════════════════════════════════════
+const AUTH_KEY      = 'branca_session';
+const AUTH_USER_KEY = 'branca_login_user';
+
+function getLoginUser() { return localStorage.getItem(AUTH_USER_KEY) || 'admin'; }
+
+function isLoggedIn() {
+  return !!sessionStorage.getItem(AUTH_KEY) || !!localStorage.getItem(AUTH_KEY);
+}
+
+function showLoginScreen() {
+  const s = document.getElementById('login-screen');
+  if (!s) return;
+  s.classList.remove('hidden');
+  // Pre-llenar el usuario si fue guardado
+  const uEl = document.getElementById('login-user');
+  if (uEl) uEl.value = getLoginUser();
+  setTimeout(function() {
+    const p = document.getElementById('login-pass');
+    if (p) p.focus();
+  }, 150);
+}
+
+function hideLoginScreen() {
+  const s = document.getElementById('login-screen');
+  if (s) s.classList.add('hidden');
+}
+
+function doLogin() {
+  const userEl = document.getElementById('login-user');
+  const passEl = document.getElementById('login-pass');
+  const errEl  = document.getElementById('login-error');
+  const user   = (userEl ? userEl.value : '').trim().toLowerCase();
+  const pass   = passEl ? passEl.value : '';
+  const remember = document.getElementById('login-remember');
+  const recordar = remember && remember.checked;
+
+  if (!user || !pass) {
+    errEl.textContent = 'Ingresá usuario y contraseña.';
+    errEl.classList.add('show'); return;
+  }
+  if (user !== getLoginUser().toLowerCase() || pass !== getAdminPass()) {
+    errEl.textContent = 'Usuario o contraseña incorrectos.';
+    errEl.classList.add('show');
+    if (passEl) passEl.value = '';
+    if (passEl) setTimeout(function(){ passEl.focus(); }, 50);
+    return;
+  }
+  errEl.classList.remove('show');
+  const token = 'ses-' + Date.now();
+  if (recordar) {
+    localStorage.setItem(AUTH_KEY, token);
+  } else {
+    sessionStorage.setItem(AUTH_KEY, token);
+    localStorage.removeItem(AUTH_KEY);
+  }
+  hideLoginScreen();
+}
+
+function logout() {
+  sessionStorage.removeItem(AUTH_KEY);
+  localStorage.removeItem(AUTH_KEY);
+  // Limpiar campo de contraseña para que deba reingresar
+  const p = document.getElementById('login-pass');
+  if (p) p.value = '';
+  const e = document.getElementById('login-error');
+  if (e) e.classList.remove('show');
+  showLoginScreen();
+}
+
+// ══════════════════════════════════════════
 // SPLASH SCREEN — auto-dismiss
 // ══════════════════════════════════════════
 (function() {
@@ -3774,7 +3964,11 @@ if ('serviceWorker' in navigator) {
     const s = document.getElementById('splash-screen');
     if (!s) return;
     s.classList.add('hide');
-    setTimeout(() => { if (s.parentNode) s.parentNode.removeChild(s); }, 750);
+    setTimeout(function() {
+      if (s.parentNode) s.parentNode.removeChild(s);
+      // Mostrar login si no hay sesión activa
+      if (!isLoggedIn()) { showLoginScreen(); }
+    }, 750);
   }
 
   if (document.readyState === 'loading') {
