@@ -122,7 +122,24 @@
   .header-actions { display: flex; align-items: center; gap: 8px; padding: 0 20px; margin-left: auto; }
 
   /* MAIN LAYOUT */
-  .main { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+  .main {
+    display: flex; flex: 1; min-height: 0; overflow: hidden;
+    position: relative;
+  }
+  /* Fondo decorativo — ola azul-gris */
+  .main::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'%3E%3Crect width='1920' height='1080' fill='%23B4BAC4'/%3E%3Cdefs%3E%3ClinearGradient id='wg' x1='0' y1='1' x2='1' y2='0' gradientUnits='objectBoundingBox'%3E%3Cstop offset='0%25' stop-color='%230A2C40'/%3E%3Cstop offset='35%25' stop-color='%23215A7A'/%3E%3Cstop offset='70%25' stop-color='%23527E96'/%3E%3Cstop offset='100%25' stop-color='%2390B4C4'/%3E%3C/linearGradient%3E%3ClinearGradient id='hl' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0%25' stop-color='%2378A8C0' stop-opacity='0.5'/%3E%3Cstop offset='45%25' stop-color='%23D4E6EE' stop-opacity='0.95'/%3E%3Cstop offset='100%25' stop-color='%23B0CCD8' stop-opacity='0.4'/%3E%3C/linearGradient%3E%3ClinearGradient id='sh' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0%25' stop-color='%23061820'/%3E%3Cstop offset='100%25' stop-color='%23143050'/%3E%3C/linearGradient%3E%3C/defs%3E%3C!-- Cuerpo principal de la ola --%3E%3Cpath d='M-100 870 C120 720 340 620 640 555 C940 490 1140 430 1440 328 C1620 268 1780 218 2060 185 L2060 390 C1780 423 1620 473 1440 533 C1140 635 940 695 640 760 C340 825 120 925 -100 1075 Z' fill='url(%23wg)'/%3E%3C!-- Highlight borde superior (brillo) --%3E%3Cpath d='M-100 870 C120 720 340 620 640 555 C940 490 1140 430 1440 328 C1620 268 1780 218 2060 185 L2060 202 C1780 235 1620 285 1440 345 C1140 447 940 507 640 572 C340 637 120 737 -100 887 Z' fill='url(%23hl)' opacity='0.75'/%3E%3C!-- Sombra borde inferior (profundidad) --%3E%3Cpath d='M-100 1075 C120 925 340 825 640 760 C940 695 1140 635 1440 533 C1620 473 1780 423 2060 390 L2060 408 C1780 441 1620 491 1440 551 C1140 653 940 713 640 778 C340 843 120 943 -100 1075 Z' fill='url(%23sh)' opacity='0.6'/%3E%3C/svg%3E");
+    background-size: cover;
+    background-position: center;
+    opacity: 0.13;
+  }
+  /* Los hijos del .main deben estar sobre el fondo */
+  .main > * { position: relative; z-index: 1; }
 
   /* CONTENT */
   .content { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
